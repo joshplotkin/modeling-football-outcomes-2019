@@ -1,9 +1,12 @@
 ### Current status
 * sourced most of the desired data
-* cleaning data
-  * finding common keys to combine data
-  * extracting desired information
-  * settling on data model
+* cleaning data and settling on data model
+  * found common keys to combine data from different sources
+  * extracted some desired fields, e.g. day of week
+  * settled on 6 tables with fields
+  * next steps
+    * convert numpy types to python native types
+    * store as Spark DataFrames and write to Hive
 
 ### High level plan; filling in with ideas as they come up
 * source/scrape/wrangle data
