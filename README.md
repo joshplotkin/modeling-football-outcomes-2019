@@ -4,9 +4,11 @@
   * found common keys to combine data from different sources
   * extracted some desired fields, e.g. day of week
   * settled on 6 tables with fields
+  * casted numpy types to python native types and stored as Spark DataFrame
+  * write as table from Spark
   * next steps
-    * convert numpy types to python native types
-    * store as Spark DataFrames and write to tables
+    * sort out home/away for lines table 
+    * sort out data quality issue in DVOA (2008, week 4 missing team names) 
 
 ### High level plan; filling in with ideas as they come up
 * source/scrape/wrangle data
