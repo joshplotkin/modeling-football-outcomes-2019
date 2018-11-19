@@ -6,7 +6,7 @@
   * settled on 6 tables with fields
   * next steps
     * convert numpy types to python native types
-    * store as Spark DataFrames and write to Hive
+    * store as Spark DataFrames and write to tables
 
 ### High level plan; filling in with ideas as they come up
 * source/scrape/wrangle data
