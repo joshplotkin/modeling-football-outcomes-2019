@@ -8,7 +8,6 @@
   * write as table from Spark
   * next steps
     * sort out home/away for lines table 
-    * sort out data quality issue in DVOA (2008, week 4 missing team names) 
 
 ### High level plan; filling in with ideas as they come up
 * source/scrape/wrangle data
