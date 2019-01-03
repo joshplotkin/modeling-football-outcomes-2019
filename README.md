@@ -1,5 +1,5 @@
 ### Current status
-* currently exploring the outcomes and lines
+* currently exploring the outcomes and lines, and generating lots of plots
   * next step is working to generate a __labels__ table, with various labels
     * binary did_cover_spread
     * actual margin
