@@ -37,6 +37,7 @@
 * code to do this is in the ER diagram notebook
 
 ![E-R Diagram for Database][erd]
+
 [erd]: er_diagram.png
 
 
