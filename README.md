@@ -36,9 +36,7 @@
 * automated using __eralchemy__
 * code to do this is in the ER diagram notebook
 
-Reference-style: 
 ![E-R Diagram for Database][erd]
-
 [erd]: er_diagram.png
 
 
