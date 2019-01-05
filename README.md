@@ -32,6 +32,12 @@
   * team
   * stadium
 
+Reference-style: 
+![E-R Diagram for Database][erd]
+
+[erd]: er_diagram.png "E-R Diagram for Database"
+
+
 ### High level plan; filling in with ideas as they come up
 * source/scrape/wrangle data
 * clean/combine data and build a data model
