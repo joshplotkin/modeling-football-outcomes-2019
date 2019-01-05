@@ -32,10 +32,14 @@
   * team
   * stadium
 
+### ER Diagram showing resulting schema
+* automated using __eralchemy__
+* code to do this is in the ER diagram notebook
+
 Reference-style: 
 ![E-R Diagram for Database][erd]
 
-[erd]: er_diagram.png "E-R Diagram for Database"
+[erd]: er_diagram.png
 
 
 ### High level plan; filling in with ideas as they come up
