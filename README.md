@@ -47,6 +47,7 @@
 * identify labels
   * label could be classification: spread, straight up winner, over/under
   * could be regression (score/margin of victory)
+  * could be classification (did/didn't cover)
   * how to decide in which direction label goes (e.g. who is 0 or 1 in classification...  is it home team? favorite? random?)
   * explore/visualize labels
 * explore/visualize data
@@ -97,4 +98,5 @@
   * how to handle early in the season vs. later? maybe start out building model for weeks 8-17?
   * how to handle playoffs vs. regular season?
   * how to figure out how to incorporate injuries
-
+  * playoff scenarios: sometimes one team is motivated while another is not (or is tanking)
+    * week 17 can be tricky 
