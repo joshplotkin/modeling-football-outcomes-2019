@@ -1,3 +1,12 @@
+### ER Diagram showing resulting schema
+* automated using __eralchemy__
+* code to do this is in the ER diagram notebook
+
+![E-R Diagram for Database][erd]
+
+[erd]: er_diagram.png
+
+
 ### Current status
 * currently exploring the outcomes and lines, and generating lots of plots
   * next step is working to generate a __labels__ table, with various labels
@@ -32,15 +41,6 @@
   * team
   * stadium
 
-### ER Diagram showing resulting schema
-* automated using __eralchemy__
-* code to do this is in the ER diagram notebook
-
-![E-R Diagram for Database][erd]
-
-[erd]: er_diagram.png
-
-
 ### High level plan; filling in with ideas as they come up
 * source/scrape/wrangle data
 * clean/combine data and build a data model
@@ -70,6 +70,8 @@
     * time since last game
     * week of season
     * record/finish last season
+    * playoff situation (is a win needed?)
+    * team fanbase size
   * player rankings, e.g. QB?
    * Mon/Thu/primetime: 
   * Travel: euclidian distances between cities?
