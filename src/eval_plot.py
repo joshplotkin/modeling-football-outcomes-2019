@@ -1,6 +1,9 @@
-## suppress warnings, mostly pandas
+## suppress warnings
+import sys
 import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
+
+if not sys.warnoptions:
+    warnings.simplefilter("ignore")
 
 import argparse
 import json
@@ -9,7 +12,6 @@ from matplotlib import rcParams
 import numpy as np
 import os
 import pandas as pd
-import sys
 
 ## custom rcParams settings for matplotlib
 sys.path.append('config')
@@ -36,11 +38,9 @@ def compute_bins(plots_dict, df, nbins, bin_type):
     '''given a pandas DF of scores and labels,
     compute nbins using either percentiles or 
     histogram style bins'''
-    
     assert bin_type in ['Bin','Percentile'] 
-    
     label_map = plots_dict['label_map']
-    ## Bin into nbins bins
+    ## Bin into nbins uniform bins
     if bin_type == 'Bin':
         df[bin_type] = df['score'].apply(
             lambda x: int(np.round(x*nbins, 0))
@@ -59,7 +59,6 @@ def compute_bins(plots_dict, df, nbins, bin_type):
     ## reindex 0,1,2,...,100
     new_idx = np.arange(0, nbins+1, 1)
 
-
     scores_to_plot['count'] = 1
     # scores_to_plot.pivot(index=bin_type, columns='label').fillna(0)
     return scores_to_plot\
@@ -72,7 +71,7 @@ def compute_bins(plots_dict, df, nbins, bin_type):
                 .fillna(0)\
                 .sort_index()
 
-def compute_plot_bins(plots_dict, df, nbins, bin_type, colors):
+def compute_plot_bins(plots_dict, df, nbins, bin_type, colors, plots_dir):
     '''given a pandas DF of bins, plot the bins
     overlaid on each other'''
     
@@ -83,27 +82,29 @@ def compute_plot_bins(plots_dict, df, nbins, bin_type, colors):
         df[c].plot(kind='bar', rot=0, color=scores_colors[i], width=1, 
                    alpha = 0.75 - 0.25*i)
         
-    plt.title('Distribution of Scores vs. Labels: Score {}s'.format(bin_type))
+    plt.title('Distribution of Scores vs. Labels: Score {}s'
+                .format(bin_type))
     plt.legend()
     plt.ylabel('Count')
     plt.xlabel('Score {}s'.format(bin_type))
     skipticks = int(np.ceil(nbins / 20.))
     a, b = plt.xticks()
     plt.xticks(a[::skipticks], b[::skipticks])
-    plt.savefig('plots/distributions__{}_{}bins.png'.format(bin_type, nbins))
+    plt.savefig('{}/distributions__{}_{}bins.png'
+                    .format(plots_dir, bin_type, nbins))
     plt.cla()
     
-def plot_trend(plots_dict, df, bin_type, nbins):
+def plot_trend(plots_dict, df, bin_type, nbins, plots_dir):
     import statsmodels.api as sm
     '''given binned pandas DF, and dict defining
     success, return a bar chart of success by score bin
     and trendlines to indicate whether higher scores correlate
     with greater success'''
     
-    eval_dict = plots_dict['eval_dict']
-    success_col = eval_dict['success_col']
-    failure_col = eval_dict['failure_col']
-    success_name = eval_dict['success_name']
+    success_name = plots_dict['success_name']
+    success_col = plots_dict['label_map']['1']
+    failure_col = plots_dict['label_map']['0']
+    
     df['success'] = df[success_col].astype(float) \
                     / ( df[success_col] + df[failure_col] )
 
@@ -153,7 +154,8 @@ def plot_trend(plots_dict, df, bin_type, nbins):
 
     ## plot trendlines
     scores_trend['OLS'].plot(kind='line', ax=ax, color=colors[1], 
-                             label='OLS (slope={:.4f})'.format(res.params[bin_type]))
+                             label='OLS (slope={:.4f})'
+                                      .format(res.params[bin_type]))
     scores_trend['LOWESS Wide Window'].plot(
                 kind='line', ax=ax, color=colors[0]
             )
@@ -167,10 +169,11 @@ def plot_trend(plots_dict, df, bin_type, nbins):
     plt.xlabel('Score {}s'.format(bin_type))    
     a, b = plt.xticks()
     plt.xticks(a[::skipticks], b[::skipticks])
-    plt.savefig('plots/score_trend__{}_{}bins.png'.format(bin_type, nbins))
+    plt.savefig('{}/score_trend__{}_{}bins.png'
+                  .format(plots_dir, bin_type, nbins))
     plt.cla()
 
-def plot_single_roc_curve(df, tprs, aucs, mean_fpr, i, set_name):
+def plot_single_roc_curve(df, tprs, aucs, mean_fpr, i, set_name, make_plot):
     '''given pandas DF of label and score,
     compute ROC values and add to current plot.
     append appropriate values to trps and aucs'''
@@ -182,10 +185,12 @@ def plot_single_roc_curve(df, tprs, aucs, mean_fpr, i, set_name):
     tprs[-1][0] = 0.0
     roc_auc = auc(fpr, tpr)
     aucs.append(roc_auc)
-    _ = plt.plot(fpr, tpr, lw=0.5, alpha=0.5, color=colors[i+1],
-             label='ROC {} (AUC = {:.2f})'.format(set_name, roc_auc))
-    
-def roc_plot_kfold_errband(roc_sets):
+    if make_plot is True:
+        _ = plt.plot(fpr, tpr, lw=0.5, alpha=0.5, color=colors[i+1],
+                     label='ROC {} (AUC = {:.2f})'
+                              .format(set_name, roc_auc))
+
+def roc_plot_kfold_errband(roc_sets, plots_dir):
     '''plot ROC curves, with curves and AUCs 
     for each of the K folds, the mean curve/AUC, 
     and error band'''
@@ -197,9 +202,18 @@ def roc_plot_kfold_errband(roc_sets):
     for i, (set_nbr, df) in enumerate(roc_sets.iteritems()):
         ## plot a single ROC curve
         ## and append to tprs and aucs
-        plot_single_roc_curve(
-                df, tprs, aucs, mean_fpr, i, 'Fold {}'.format(i)
-            )
+        try:
+            ## fold scores
+            int(set_nbr)
+            set_nbr_str = 'Fold {}'.format(i)
+            make_plot = True
+        except:
+            ## non-fold scores
+            set_nbr_str = ''
+            make_plot = False
+
+        plot_single_roc_curve(df, tprs, aucs, mean_fpr, 
+                              i, set_nbr_str, make_plot)
 
     ## random (as good as random guessing)
     _ = plt.plot([0, 1], [0, 1], linestyle='--', lw=1, color=colors[-1],
@@ -210,9 +224,15 @@ def roc_plot_kfold_errband(roc_sets):
     mean_tpr[-1] = 1.0
     mean_auc = auc(mean_fpr, mean_tpr)
     std_auc = np.std(aucs)
-    _ = plt.plot(mean_fpr, mean_tpr, color=colors[0],
-             label=r'Mean ROC (AUC = {:.2f} $\pm$ {:.2f})'.format(mean_auc, std_auc),
-             lw=2, alpha=.8)
+    
+    if len(roc_sets.keys()) > 1:
+        _ = plt.plot(mean_fpr, mean_tpr, color=colors[0],
+                 label=r'Mean ROC (AUC = {:.2f} $\pm$ {:.2f})'
+                          .format(mean_auc, std_auc),
+                 lw=2, alpha=.8)
+    else:
+        _ = plt.plot(mean_fpr, mean_tpr, color=colors[0],
+                 label=r'Overall ROC', lw=2, alpha=.8)
 
     ## add error bands, +/- 1 stddev
     std_tpr = np.std(tprs, axis=0)
@@ -230,10 +250,10 @@ def roc_plot_kfold_errband(roc_sets):
     _ = plt.ylabel('True Positive Rate')
     _ = plt.title('ROC Curve')
     _ = plt.legend(loc="lower right")
-    plt.savefig('plots/roc.png')
+    plt.savefig('{}/roc.png'.format(plots_dir))
     plt.cla()
 
-def plot_by_threshold(df, metric):
+def plot_by_threshold(df, metric, plots_dir):
     '''given a pandas DF of scores, 
     compute and plot the accuracy, 
     given score thresholds
@@ -247,13 +267,17 @@ def plot_by_threshold(df, metric):
         if metric == 'Accuracy':
             acc_curve[i] = accuracy_score(df['label'], df['pred'])
         elif metric == 'F1':
-            acc_curve[i] = f1_score(df['label'], df['pred'])
+            if min(df['label'].value_counts().shape[0], 
+                   df['pred'].value_counts().shape[0]) <= 1:
+                acc_curve[i] = 0
+            else:
+                acc_curve[i] = f1_score(df['label'], df['pred'])
 
     acc_df = pd.DataFrame\
                .from_dict(acc_curve, orient='index')\
                .sort_index()\
                .rename(columns={0:metric})
-    acc_df.index.name = 'Model Score'
+    acc_df.index.name = 'Model Score Threshold'
 
     ## peak of curve
     peak = acc_df.loc[acc_df.idxmax()]
@@ -279,7 +303,7 @@ def plot_by_threshold(df, metric):
     )
     _ = plt.legend()
     _ = plt.ylabel(metric)
-    plt.savefig('plots/{}_by_thresholds'.format(metric))
+    plt.savefig('{}/{}_by_thresholds'.format(plots_dir, metric))
     return acc_df
 
 ## START EXECUTION
@@ -288,34 +312,49 @@ if not os.path.exists('plots'):
 if not os.path.exists('stats'): 
     os.mkdir('stats')
 
-scores_df = pd.read_csv('scores/reported_scores.csv', index_col=model_dict['index'])
+    
+for scores_csv in os.listdir('scores'):
+    dirname = scores_csv.replace('_scores.csv','')
+    stats_dir = 'stats/{}'.format(dirname)
+    plots_dir = 'plots/{}'.format(dirname)
+    if not os.path.exists(stats_dir): 
+        os.mkdir(stats_dir)
+    if not os.path.exists(plots_dir): 
+        os.mkdir(plots_dir)
+    
+    scores_df = pd.read_csv(
+        'scores/{}'.format(scores_csv), 
+        index_col=model_dict['index']
+    )
 
-## Plot metrics by score threshold
-for metric in plots_dict['threshold_metrics']:
-    metric_by_threshold__accuracy = plot_by_threshold(scores_df, metric)
-    metric_by_threshold__accuracy.to_csv(
-                    'stats/metric_by_threshold__{}.csv'.format(metric)
-                )
+    ## Plot metrics by score threshold
+    for metric in plots_dict['threshold_metrics']:
+        metric_by_threshold = plot_by_threshold(scores_df, metric, plots_dir)
+        metric_by_threshold.to_csv('{}/metric_by_threshold__{}.csv'
+                                      .format(stats_dir, metric))
 
-## Plot distributions
-for bin_type in plots_dict['bin_types']:
-    for nbins in plots_dict['plot_bins']:
-        ## plot bins
-        curr_bins = compute_bins(plots_dict, scores_df, nbins, bin_type)
-        compute_plot_bins(plots_dict, curr_bins, nbins, bin_type, colors)
-        ## plot trend
-        if bin_type == 'Percentile':
-            plot_trend(plots_dict, curr_bins, bin_type, nbins)
-        ## store data
-        curr_bins.to_csv(
-                    'stats/distributions__{}_{}.csv'.format(nbins, bin_type)
-                )
+    ## Plot distributions
+    for bin_type in plots_dict['bin_types']:
+        for nbins in plots_dict['plot_bins']:
+            ## plot bins
+            curr_bins = compute_bins(plots_dict, scores_df, nbins, bin_type)
+            compute_plot_bins(plots_dict, curr_bins, nbins, 
+                              bin_type, colors, plots_dir)
+            ## plot trend
+            if bin_type == 'Percentile':
+                plot_trend(plots_dict, curr_bins, bin_type, nbins, plots_dir)
+            ## store data
+            curr_bins.to_csv('{}/distributions__{}_{}.csv'
+                                .format(stats_dir, nbins, bin_type))
 
-#### ROC
-roc_sets = {
-    k: scores_df[scores_df['fold'] == k][['label','score']]
-    for k in scores_df['fold'].unique()
-}
-roc_plot_kfold_errband(roc_sets)
+    #### ROC
+    if 'fold' in scores_df.columns:
+        roc_sets = {
+            k: scores_df[scores_df['fold'] == k][['label','score']]
+            for k in scores_df['fold'].unique()
+        }
+    else:
+        roc_sets = {'Full': scores_df}
+    roc_plot_kfold_errband(roc_sets, plots_dir)
 
 print 'successfully completed evaluation and plotting.'

@@ -1,5 +1,5 @@
 {
-    "model_id": "0114_test_ou", 
+    "model_id": "0114_test", 
     "threshold_metrics": [
         "Accuracy", 
         "F1"

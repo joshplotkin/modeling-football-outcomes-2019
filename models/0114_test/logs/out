@@ -1,3 +1,6 @@
 JSON configuration files passed checks.
+training.csv
+scoring_only.csv
+['training.csv', 'scoring_only.csv']
 cv sets wrote successfully.
 successfully completed evaluation and plotting.

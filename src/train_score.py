@@ -1,3 +1,9 @@
+import sys
+import warnings
+
+if not sys.warnoptions:
+    warnings.simplefilter("ignore")
+
 import argparse
 import cPickle as pickle
 import json
@@ -5,7 +11,11 @@ import numpy as np
 import os
 import pandas as pd
 import seaborn as sns
-import sys
+
+## suppress warnings
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
 
 ## mode ID is only command-line argument
 ## store as variable model_id and assert
@@ -91,6 +101,16 @@ def cv_score(model_dict, training_scoring_dict):
     
     return scores_df
 
+def score_holdout_set(model_dict, training_scoring_dict, holdout_df):
+    '''using an already trained model, score the holdout set 
+    and return the scores'''
+    feats = sorted(model_dict['features_list'])
+    fitted_model = training_scoring_dict['full']['model']
+    holdout_df['score'] = fitted_model.predict_proba(
+                                    holdout_df[feats].values.tolist()
+                                )[:,1]
+    return holdout_df
+
 ## START EXECUTION
 
 ## since the dataset is small, it's faster to load the training/scoring 
@@ -99,11 +119,11 @@ def cv_score(model_dict, training_scoring_dict):
 ## better option.
 training = pd.read_csv('cv_data/training.csv')
 scoring_only = pd.read_csv('cv_data/scoring_only.csv')
-
+    
 if not os.path.exists('serialized_models'): 
-	os.mkdir('serialized_models')
+    os.mkdir('serialized_models')
 if not os.path.exists('scores'): 
-	os.mkdir('scores')
+    os.mkdir('scores')
 
 ## as opposed to spark:
 model_obj, train_in_memory = get_model_obj(model_dict)
@@ -111,7 +131,8 @@ model_obj, train_in_memory = get_model_obj(model_dict)
 ## in memory is faster when possible
 ## spark can train/score
 if train_in_memory is True:
-    training_scoring_dict = cv_train(model_dict, training, scoring_only, model_obj)
+    training_scoring_dict = cv_train(model_dict, training, 
+                                     scoring_only, model_obj)
 
     ## save models
     [t['model']._Booster.save_model('serialized_models/model_{}.xgb'.format(k)) 
@@ -120,8 +141,14 @@ if train_in_memory is True:
 
     scores_df = cv_score(model_dict, training_scoring_dict)
     scores_df.to_csv('scores/reported_scores.csv')
-    print 'successfully completed training/scoring.'
+    
+    if model_dict['holdout_set']['score_using_full_model']:
+        holdout = pd.read_csv('cv_data/holdout.csv')
+        holdout = score_holdout_set(model_dict, training_scoring_dict, 
+                                    holdout)
+        holdout.to_csv('scores/holdout_scores.csv')
+
+        print 'successfully completed training/scoring.'
 else:
-	print 'Spark ML model training/scoring not supported yet. Exiting.'
-
-
+    print 'Spark ML model training/scoring not supported yet. Exiting.'
+    sys.exit(1)

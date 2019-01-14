@@ -7,11 +7,13 @@ import sys
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.conf import SparkConf
+from pyspark.sql.functions import col
 
 ## get spark context with minimal logging
-spark = SparkSession.builder.config(
-	conf=SparkConf()
-	).enableHiveSupport().getOrCreate()
+spark = SparkSession.builder\
+                    .config(conf=SparkConf())\
+                    .enableHiveSupport()\
+                    .getOrCreate()
 spark.sparkContext.setLogLevel('WARN')
 
 ## mode ID is only command-line argument
@@ -32,11 +34,12 @@ plots_dict = json.load(open('plots.json','r'))
 #### START CHECKS
 
 ### Hive Tables
+
 ## assert these fields are of the correct type
 assert type(model_dict['index']) is list
-assert type(model_dict['label_col']) is str
-assert type(model_dict['features_tbl']) is str
-assert type(model_dict['features_tbl']) is str
+assert type(model_dict['label_col']) in [str, unicode]
+assert type(model_dict['features_tbl']) in [str, unicode]
+assert type(model_dict['features_tbl']) in [str, unicode]
 assert type(model_dict['features_list']) is list
 assert type(model_dict['pos_labels']) is list
 
@@ -75,43 +78,63 @@ for label_val in ['pos_labels','neg_labels']:
         ).count() > 0
 
 ### Cross-validation sets
-## assert the data structures/types are correct
-assert type(model_dict['kfold_seed']) is int
-assert type(model_dict['dataset_seed']) is int
-assert type(model_dict['kfold']) is int
-assert type(model_dict['strata_cols']) is list
-assert type(model_dict['global_dataset_proportions']) is dict
-assert type(model_dict['dimensional_dataset_proportions']) is dict
 
-## assert strata cols are present in the labels table
-assert not set(model_dict['strata_cols']) - label_cols_set
+## if this entry is None, make sure the 
+## reference directory exists.
+if model_dict['model_cv_to_use']:
+    assert type(model_dict['model_cv_to_use']) is str
+    assert os.path.exists('../{}'.format(model_dict['model_cv_to_use']))
+else:
+    ## assert the data structures/types are correct
+    assert type(model_dict['kfold_seed']) is int
+    assert type(model_dict['dataset_seed']) is int
+    assert type(model_dict['kfolds']) is int
+    assert type(model_dict['strata_cols']) is list
+    assert type(model_dict['global_dataset_proportions']) is dict
+    assert type(model_dict['dimensional_dataset_proportions']) is dict
+    assert type(model_dict['holdout_set']) is dict
 
-dataset_types = set(['in_training','holdout','throw_away','scoring_only'])
-global_datasets = model_dict['global_dataset_proportions']
-dim_datasets = model_dict['dimensional_dataset_proportions']
+    ## assert strata cols are present in the labels table
+    assert not set(model_dict['strata_cols']) - label_cols_set
 
-## assert global_dataset_proportions has all possible dataset types
-assert set(global_datasets.keys()) == dataset_types
-## values are proportions that must sum to 1
-assert sum(global_datasets.values()) == 1
-## assert that the keys are valid dataset types
-assert not set(dim_datasets.keys()) - dataset_types
-## assert the following (in order of assertion block):
-## (1) each value is a list
-## (2) each element of the list is a dict
-## (3) each dict has the 5 required keys
-## (4) the "dim" field is in the strata columns 
-## (5) "prop_to_move" field is [0, 1]
-## (6) "from_groups" are in the possible dataset types
-for k, dim_list in dim_datasets.iteritems():
-    assert (type(dim_list)) is list
-    for entry in dim_list:
-        assert type(entry) is dict
-        assert set(entry.keys()) \
-                == set(['vals','dim','prop_to_move','from_groups'])
-        assert entry['dim'] in model_dict['strata_cols']
-        assert 0 <= entry['prop_to_move'] <= 1
-        assert not set(entry['from_groups']) - dataset_types
+    dataset_types = set(['in_training','holdout','throw_away','scoring_only'])
+    global_datasets = model_dict['global_dataset_proportions']
+    dim_datasets = model_dict['dimensional_dataset_proportions']
+
+    ## assert global_dataset_proportions has all possible dataset types
+    assert set(global_datasets.keys()) == dataset_types
+    ## values are proportions that must sum to 1
+    assert sum(global_datasets.values()) == 1
+    ## assert that the keys are valid dataset types
+    assert not set(dim_datasets.keys()) - dataset_types
+    ## assert the following (in order of assertion block):
+    ## (1) each value is a list
+    ## (2) each element of the list is a dict
+    ## (3) each dict has the 5 required keys
+    ## (4) the "dim" field is in the strata columns 
+    ## (5) "prop_to_move" field is [0, 1]
+    ## (6) "from_groups" are in the possible dataset types
+    for k, dim_list in dim_datasets.iteritems():
+        assert (type(dim_list)) is list
+        for entry in dim_list:
+            assert type(entry) is dict
+            assert set(entry.keys()) \
+                    == set(['vals','dim','prop_to_move','from_groups'])
+            assert entry['dim'] in model_dict['strata_cols']
+            assert 0 <= entry['prop_to_move'] <= 1
+            assert not set(entry['from_groups']) - dataset_types
+
+    ## assert holdout set has 2 keys (store_to_disk, score_using_full_model)
+    ## and the corresponding values are boolean
+    assert set(model_dict['holdout_set'].keys()) \
+            == set(['store_to_disk','score_using_full_model'])
+    assert len(filter(
+        lambda x: type(x) is not bool, 
+        model_dict['holdout_set'].values()
+    )) == 0
+    ## if holdout data isn't stored, it can't be scored
+    assert not (model_dict['holdout_set']['store_to_disk'] is False) \
+                & (model_dict['holdout_set']['score_using_full_model'] is True)
 
 ### Model Choice
 ## test that model object can be created
@@ -130,7 +153,7 @@ except Exception as e:
 
 ### Plot Labels
 assert type(plots_dict['label_map']) is dict
-assert type(plots_dict['success_name']) is str
+assert type(plots_dict['success_name']) in [str, unicode]
 assert set(plots_dict['label_map'].keys()) == set(['0','1'])
 
 ### Bins to plot

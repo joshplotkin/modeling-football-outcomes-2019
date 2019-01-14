@@ -16,9 +16,11 @@ from pyspark.sql.functions import col, udf
 from pyspark.sql.types import *
 
 ## get spark context with minimal logging
-spark = SparkSession.builder.config(
-	conf=SparkConf()
-	).enableHiveSupport().getOrCreate()
+spark = SparkSession\
+            .builder\
+            .config(conf=SparkConf())\
+            .enableHiveSupport()\
+            .getOrCreate()
 spark.sparkContext.setLogLevel('WARN')
 
 ## mode ID is only command-line argument
@@ -166,7 +168,7 @@ def assign_group(model_dict, df, d, strata_cols, colname):
     
     return df.withColumn(colname, group_assign_cond)
 
-def get_training_scoring_sets(model_dict, training_rows):
+def prep_datasets(model_dict, data_rows):
     '''given model dict and pandas DF of the rows
     to be used for training, and the folds, 
     return 2 pandas DFs: prepped training and scoring sets'''
@@ -175,55 +177,91 @@ def get_training_scoring_sets(model_dict, training_rows):
             *( set(model_dict['features_list']) 
                | set(index) )
         )
-
-    training = features_prep.join(
-        training_rows.select(*(index + ['label','fold'])),
-        on=index
-    )
-    scoring_only = features_prep.join(
-        scoring_rows.select(*(index + ['label'])),
-        on=index
-    )
-
-    assert training.count() == training_rows.count()
-    assert scoring_only.count() == scoring_rows.count() 
     
-    return (training, scoring_only)
-
+    for k, rows_sdf in data_rows.iteritems():
+        if 'fold' in rows_sdf.columns:
+            addon_cols = ['label','fold']
+        else:
+            addon_cols = ['label']
+        prepped_sdf = features_prep.join(
+            rows_sdf.select(*(index + addon_cols)),
+            on=index
+        )
+        assert prepped_sdf.count() == rows_sdf.count()
+        data_rows[k] = prepped_sdf
+    
+    return data_rows
 
 ## START EXECUTION
-
-cv_data = get_cv_data(model_dict)
-global_rolling = prop_dict_rolling(
-    model_dict['global_dataset_proportions']
-)
-datasets = assign_group(
-    model_dict, cv_data, global_rolling, 
-    model_dict['strata_cols'], 'dataset'
-)
-datasets = modify_group_for_dim(
-    model_dict, datasets, model_dict['dimensional_dataset_proportions'], 'dataset' 
-)
-
-## assert (1) training set is not empty 
-## (2) either k-fold or scoring set is not empty
-assert datasets.filter(col('dataset') == 'in_training').count() > 0
-if model_dict['kfolds'] <= 1:
-    assert datasets.filter(col('dataset') == 'scoring_only').count() > 0
-
-scoring_rows = datasets.filter(col('dataset') == 'scoring_only')
-training_rows = datasets.filter(col('dataset') == 'in_training')
-
-training_rows = assign_k_folds(model_dict, training_rows)
-training, scoring_only = get_training_scoring_sets(model_dict, training_rows)
-
 ## writing to Hive tables is more scalable but writing to csv
 ## is faster on smaller data (no overhead of spinning up sparkcontext)
-# training.write.mode('overwrite').saveAsTable('cv.{}_training'.format(model_id))
-# scoring_only.write.mode('overwrite').saveAsTable('cv.{}_scoring_only'.format(model_id))
 if not os.path.exists('cv_data'): 
-	os.mkdir('cv_data')
-training.toPandas().to_csv('cv_data/training.csv', index=False)
-scoring_only.toPandas().to_csv('cv_data/scoring_only.csv', index=False)
+    os.mkdir('cv_data')
+
+cv_data = get_cv_data(model_dict)
+
+## don't re-compute the CV datasets. load from a pre-existing model
+if model_dict['model_cv_to_use']:
+    ref_datasets = {}
+    idx = model_dict['index']
+    ref_model_path = '../{}/cv_data'.format(model_dict['model_cv_to_use'])
+    files = os.listdir(ref_model_path)
+    for f in files:
+        curr = pd.read_csv('{}/{}'.format(ref_model_path, f))
+        ## check that these CV sets' indexes are all represented
+        ## in the cv_data Spark DF
+        idx_full = cv_data.select(*idx).toPandas()
+        idx_ref = curr[idx]
+        assert idx_full.merge(idx_ref, left_on=idx, right_on=idx).shape[0] \
+                 == idx_ref.shape[0]
+
+        ref_datasets[f] = curr
+        
+    required_data = ['training.csv','scoring_only.csv']
+    if model_dict['holdout_set']['store_to_disk'] is True:
+        required_data.append('holdout.csv')
+    ## assert that all needed CV data is available
+    assert set(required_data) == set(ref_datasets.keys())
+
+    for k,v in ref_datasets.iteritems():
+        v.to_csv('cv_data/{}'.format(k), index=False)
+
+## compute CV datasets
+else:
+    ## assert that the "label" column created in get_cv_data is binary
+    assert cv_data.groupby('label').count().toPandas().shape[0] == 2
+    global_rolling = prop_dict_rolling(
+        model_dict['global_dataset_proportions']
+    )
+    datasets = assign_group(
+        model_dict, cv_data, global_rolling, 
+        model_dict['strata_cols'], 'dataset'
+    )
+    datasets = modify_group_for_dim(
+        model_dict, datasets, 
+        model_dict['dimensional_dataset_proportions'], 'dataset' 
+    )
+
+    ## assert (1) training set is not empty 
+    ## (2) either k-fold or scoring set is not empty
+    assert datasets.filter(col('dataset') == 'in_training').count() > 0
+    if model_dict['kfolds'] <= 1:
+        assert datasets.filter(col('dataset') == 'scoring_only').count() > 0
+
+    data_rows = {
+        'scoring_only': datasets.filter(col('dataset') == 'scoring_only'),
+        'training': datasets.filter(col('dataset') == 'in_training')
+    }
+    ## model.json indicates whether to store holdout set
+    if model_dict['holdout_set']['store_to_disk'] is True:
+        data_rows['holdout'] = datasets.filter(col('dataset') == 'holdout')
+
+    data_rows['training'] = assign_k_folds(model_dict, data_rows['training'])
+    data_rows = prep_datasets(model_dict, data_rows)
+
+    for dataset_name, dataset_sdf in data_rows.iteritems():
+        dataset_sdf\
+            .toPandas()\
+            .to_csv('cv_data/{}.csv'.format(dataset_name), index=False)
 
 print 'cv sets wrote successfully.'
