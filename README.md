@@ -9,7 +9,8 @@
 ### Current status
 * built model cv train/score/eval/plot scaffolding
   * call it from repo root dir: src/model_pipeline.sh 0114_test_ou &
-  * few more items
+  * few more TODOs
+  * need to support regression--deciding to add it in now or later
 * next step: feature engineering (some ideas below)
 * sourced and enriched most of the desired data. some remain:
   * sourced injury data but didn't clean/incorporate
