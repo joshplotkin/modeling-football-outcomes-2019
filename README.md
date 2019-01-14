@@ -6,15 +6,11 @@
 
 [erd]: er_diagram.png
 
-
 ### Current status
-* currently exploring the outcomes and lines, and generating lots of plots
-  * next step is working to generate a __labels__ table, with various labels
-    * binary did_cover_spread
-    * actual margin
-    * will have to choose in which "direction", e.g. do I always keep the line relative to favorite?
-    * over/under
-  * next step after will be to build the model training/scoring/evaluation scaffolding
+* built model cv train/score/eval/plot scaffolding
+  * call it from repo root dir: src/model_pipeline.sh 0114_test_ou &
+  * few more items
+* next step: feature engineering (some ideas below)
 * sourced and enriched most of the desired data. some remain:
   * sourced injury data but didn't clean/incorporate
     * incorporating will be a challenge
@@ -30,16 +26,6 @@
      * NFL nextgen
      * would be nice to get schemes and dig into specific matchups, e.g. WR vs CB or O vs. D schemes
   * how to encode team changes in the off-season, e.g. FA acquisitions
-* cleaned data and settled on data model in Hive via Spark
-  * games_denorm (all fields in denormalized schema)
-  * game (fact table)
-  * game_metadata
-  * game_outcome
-  * game_line
-  * team_season
-  * coach
-  * team
-  * stadium
 
 ### High level plan; filling in with ideas as they come up
 * source/scrape/wrangle data
@@ -63,7 +49,14 @@
 * train an early model using CV framework
 * engineer features
   * raw fields
+    * consecutive road games
+    * using prop bet lines? (historical data will be hard to find)
+    * team's record vs. coach
+    * previous team(s) faced (ranks as proxy for teams)
+    * some proxy for home field advantage: wins above expected?
+    * QB recent matchups with team
     * home team (binary)
+    * recent record against similar opponents
     * O/D/ST/overall rankings
     * divisional matchup indicator
     * travel distance from last game (decayed by time?)
