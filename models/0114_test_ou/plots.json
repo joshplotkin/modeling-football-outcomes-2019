@@ -1,0 +1,20 @@
+{
+    "label_map": {
+        "1": "Over", 
+        "0": "Under"
+    }, 
+    "bin_types": [
+        "Bin", 
+        "Percentile"
+    ], 
+    "plot_bins": [
+        10, 
+        100
+    ], 
+    "eval_dict": {
+        "success_name": "Success Rate", 
+        "failure_col": "Under", 
+        "success_col": "Over"
+    },
+    "threshold_metrics": ["Accuracy", "F1"]
+}
