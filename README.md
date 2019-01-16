@@ -1,6 +1,7 @@
 ### Work completed
 * public00_source_wrangle_data.ipynb
-  * sourced first iteration of data from around 10 sources. identified potential future sources. (scrubbed website names) 
+  * sourced first iteration of data from around 10 sources. (scrubbed website names)
+  * identified potential future sources.
 * public01_write_tables.ipynb
   * QA'ed, cleaned, enriched, and did initial exploration of the data.
   * created a star schema and wrote to Hive tables, to be queried by Spark.
@@ -38,6 +39,7 @@
      * sports info solutions
      * sharp football
      * NFL nextgen
+     * pregame.com
      * would be nice to get schemes and dig into specific matchups, e.g. WR vs CB or O vs. D schemes
   * how to encode team changes in the off-season, e.g. FA acquisitions
 
