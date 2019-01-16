@@ -8,19 +8,22 @@
 * public02_explore_scores_lines.ipynb & public03_form_visualize_labels.ipynb
   * initial data exploration and visualization. 
   * prepared labels and wrote to Hive tables.
-* public04_train_score_evaluate_scaffold.ipynb
+* src/ & public04_train_score_evaluate_pipeline.ipynb.
   * developed model train/score/evaluate/visualize pipeline with model repository, for rapid feedback when engineering features and improving the model.
-    * python and bash execution files in src directory
-    * model execution driven through 2 JSON configuration files. place them in directory models/{MODEL_ID} and run
-* ```bash
+    * python and bash execution files in src directory.
+    * model execution driven through 2 JSON configuration files. place them in directory models/{MODEL_ID} and run.
+```bash
 src/model_pipeline.sh {MODEL_ID}
 ```
-    * core ideas for scaffolding developed with Pivotal teammate, Tim Kopp. learned many great ideas from Tim, like incorporating model choice into model config using importlib, the directory structure, using directories as a model repository, among many others.
+    * core ideas developed with Pivotal teammate, Tim Kopp. learned many great ideas from Tim, like incorporating model choice into model config using importlib, the directory structure, using directories as a model repository, among many others.
+* public05_generate_configs_execute.ipynb
+  * notebook to generate JSON configuration files.
+  * thoroughly tested pipeline.
 * next steps
-  * model pipeline test cases
-  * feature engineering and model development
-* TODO
-  * regression model support
+  * model pipeline test cases.
+  * feature engineering and model development.
+* backlog
+  * regression model support.
 
 ### ER Diagram showing data model 
 * automated using __eralchemy__
