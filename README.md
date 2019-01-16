@@ -22,6 +22,7 @@
 * backlog
   * regression model support.
   * continuous stratified sampling columns (using binning)
+  * Spark ML support
 
 ### ER Diagram showing data model 
 * automated using __eralchemy__
