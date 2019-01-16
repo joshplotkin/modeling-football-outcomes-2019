@@ -78,6 +78,31 @@ def cv_train(model_dict, training, scoring_only, model_obj):
                     np.array(set_data['train'][feats].values.tolist()),
                     set_data['train']['label'].ravel()
                 )
+            
+            feature_imp = {}
+            feats = model_dict['features_list']
+
+            ## XGBOOST ONLY
+            imp = training_scoring_dict[set_nbr]['model']\
+                    ._Booster\
+                    .get_score(fmap='', importance_type='gain')
+            
+            for i, (c, importance) in enumerate(imp.iteritems()):
+                idx = int(c[1:])
+                feature_imp[i] = {
+                    'Importance': importance,
+                    'Feature': feats[idx]
+                }
+                
+            imp = pd.DataFrame.from_dict(
+                        feature_imp, orient='index'
+                    ).sort_values(
+                        by='Importance', ascending=False
+                    ).to_csv(
+                        'stats/reported/importance_{}.csv'
+                           .format(set_nbr),
+                        index=False
+                    )
     return training_scoring_dict
     
 def cv_score(model_dict, training_scoring_dict):
@@ -111,6 +136,8 @@ def score_holdout_set(model_dict, training_scoring_dict, holdout_df):
                                 )[:,1]
     return holdout_df
 
+def save_models():
+
 ## START EXECUTION
 
 ## since the dataset is small, it's faster to load the training/scoring 
@@ -119,11 +146,14 @@ def score_holdout_set(model_dict, training_scoring_dict, holdout_df):
 ## better option.
 training = pd.read_csv('cv_data/training.csv')
 scoring_only = pd.read_csv('cv_data/scoring_only.csv')
-    
+
 if not os.path.exists('serialized_models'): 
     os.mkdir('serialized_models')
 if not os.path.exists('scores'): 
     os.mkdir('scores')
+if not os.path.exists('stats'): 
+    os.mkdir('stats')
+    os.mkdir('stats/reported')
 
 ## as opposed to spark:
 model_obj, train_in_memory = get_model_obj(model_dict)
@@ -135,9 +165,12 @@ if train_in_memory is True:
                                      scoring_only, model_obj)
 
     ## save models
-    [t['model']._Booster.save_model('serialized_models/model_{}.xgb'.format(k)) 
-    for (k, t) in training_scoring_dict.iteritems()
-    if 'model' in t.keys()]
+    [
+        t['model']._Booster.save_model('serialized_models/model_{}.xgb'
+                                          .format(k)) 
+        for (k, t) in training_scoring_dict.iteritems()
+        if 'model' in t.keys()
+    ]
 
     scores_df = cv_score(model_dict, training_scoring_dict)
     scores_df.to_csv('scores/reported_scores.csv')

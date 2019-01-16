@@ -206,16 +206,16 @@ if model_dict['model_cv_to_use']:
     idx = model_dict['index']
     ref_model_path = '../{}/cv_data'.format(model_dict['model_cv_to_use'])
     files = os.listdir(ref_model_path)
+    cv_idx_fold = cv_data.select(*(idx + ['fold'])).toPandas()
     for f in files:
         curr = pd.read_csv('{}/{}'.format(ref_model_path, f))
         ## check that these CV sets' indexes are all represented
         ## in the cv_data Spark DF
-        idx_full = cv_data.select(*idx).toPandas()
         idx_ref = curr[idx]
-        assert idx_full.merge(idx_ref, left_on=idx, right_on=idx).shape[0] \
+        assert idx_full.merge(cv_idx_fold, left_on=idx, right_on=idx).shape[0] \
                  == idx_ref.shape[0]
 
-        ref_datasets[f] = curr
+        ref_datasets[f] = curr.merge(cv_idx_fold, left_on=idx, right_on=idx)
         
     required_data = ['training.csv','scoring_only.csv']
     if model_dict['holdout_set']['store_to_disk'] is True:
@@ -224,6 +224,7 @@ if model_dict['model_cv_to_use']:
     assert set(required_data) == set(ref_datasets.keys())
 
     for k,v in ref_datasets.iteritems():
+        v.merge()
         v.to_csv('cv_data/{}'.format(k), index=False)
 
 ## compute CV datasets

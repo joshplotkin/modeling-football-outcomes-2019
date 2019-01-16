@@ -86,7 +86,7 @@ def compute_plot_bins(plots_dict, df, nbins, bin_type, colors, plots_dir):
                 .format(bin_type))
     plt.legend()
     plt.ylabel('Count')
-    plt.xlabel('Score {}s'.format(bin_type))
+    plt.xlabel('Score {}'.format(bin_type))
     skipticks = int(np.ceil(nbins / 20.))
     a, b = plt.xticks()
     plt.xticks(a[::skipticks], b[::skipticks])
@@ -269,7 +269,7 @@ def plot_by_threshold(df, metric, plots_dir):
         elif metric == 'F1':
             if min(df['label'].value_counts().shape[0], 
                    df['pred'].value_counts().shape[0]) <= 1:
-                acc_curve[i] = 0
+                acc_curve[i] = None
             else:
                 acc_curve[i] = f1_score(df['label'], df['pred'])
 
@@ -303,8 +303,107 @@ def plot_by_threshold(df, metric, plots_dir):
     )
     _ = plt.legend()
     _ = plt.ylabel(metric)
-    plt.savefig('{}/{}_by_thresholds'.format(plots_dir, metric))
+    plt.savefig('{}/thresholds_by_{}.png'.format(plots_dir, metric))
     return acc_df
+
+def annotate_feature_importance(ax, imp_plot):
+    '''for the feature importance plot,
+    overlay the feature names on the bars themsleves.
+    this allows for longer names to fit'''
+    from matplotlib.patches import Rectangle    
+    
+    ## last bar is the background so skip that
+    bars = [rect for rect in ax.get_children() 
+            if isinstance(rect, Rectangle)][:-1]
+
+    bars_info = map(
+        lambda (i, b): (imp_plot.index[i],
+                        i
+                       ),
+        enumerate(bars)
+    )
+
+    for s, i in bars_info:
+        _ = ax.text(x=0.02, y=i - len(bars)/150., 
+                    s='{}'.format(s), fontsize=11)
+
+    return ax
+
+def get_feat_importance_df():
+    '''find feature importance csv
+    files in the stats/reported dir
+    and aggregate them'''
+    def extract_set_name(f):
+        '''given feature importance
+        csv filename, extract the set number'''
+        return f.split('.')[0].split('_')[-1] 
+
+    imp_files = filter(
+        lambda x: ('importance' in x) 
+                     ## if re-running, don't want to use
+                     ## the aggregated csv
+                     & ('importance_agg' not in x),
+        os.listdir('stats/reported')
+    )
+    assert imp_files
+
+    imp_dfs = {
+        extract_set_name(f): pd.read_csv(
+                     'stats/reported/{}'.format(f), index_col='Feature'
+                 ).rename(
+                     columns={'Importance': extract_set_name(f)}
+                 )
+        for f in imp_files
+    }
+
+    importance = reduce(
+        lambda df1,df2: df1.merge(df2, left_index=True, right_index=True),
+        imp_dfs.values()
+    )
+    fold_cols = importance.drop('full', axis=1).columns
+    ## over 1 fold
+    if len(fold_cols) > 1:
+        importance['Importance'] = importance[fold_cols].mean(axis=1)
+        importance['StdDev'] = importance[fold_cols].std(axis=1)
+    else:
+        importance = importance.rename(
+            columns={'full':'Importance'}
+        ).assign(StdDev=None)
+
+    return importance
+
+def plot_feature_importance(importance):
+    '''given a pandas DF of feature importances
+    plot at most (top) 20 importances as a
+    horizontal bar chart'''
+    imp_plot = importance[['Importance','StdDev']]\
+                    .sort_values(by='Importance')\
+                    .tail(20)
+
+    ax = plt.figure().add_subplot(111)
+    if importance.shape[0] > 20:
+        size_desc = 'Top 20 Most Important'
+    else:
+        size_desc = 'All'
+
+    imp_plot['Importance'].plot(
+        kind='barh', color=colors[2], alpha=0.5, ax=ax,
+        title='Feature Importance for {} Features'
+                .format(size_desc)
+    )
+    ax = annotate_feature_importance(ax, imp_plot)
+
+
+    a, b = plt.yticks()
+    b_mod = map(
+        lambda (i,x): x.set_text(
+            '{:.3f}'.format(imp_plot['Importance'].values[i])
+        ), enumerate(b)
+    )
+    plt.yticks(a, b, fontsize=10)
+    plt.xlabel('Importance Values')
+    plt.ylabel('Feature Name & Importance Value')
+    plt.savefig('plots/reported/importance.png')
 
 ## START EXECUTION
 if not os.path.exists('plots'): 
@@ -356,5 +455,10 @@ for scores_csv in os.listdir('scores'):
     else:
         roc_sets = {'Full': scores_df}
     roc_plot_kfold_errband(roc_sets, plots_dir)
+    
+## run only for training aka reported model
+importance = get_feat_importance_df()
+importance.to_csv('stats/reported/importance_agg.csv')
+plot_feature_importance(importance)
 
 print 'successfully completed evaluation and plotting.'
