@@ -82,7 +82,7 @@ for label_val in ['pos_labels','neg_labels']:
 ## if this entry is None, make sure the 
 ## reference directory exists.
 if model_dict['model_cv_to_use']:
-    assert type(model_dict['model_cv_to_use']) is str
+    assert type(model_dict['model_cv_to_use']) in [str, unicode]
     assert os.path.exists('../{}'.format(model_dict['model_cv_to_use']))
 else:
     ## assert the data structures/types are correct
