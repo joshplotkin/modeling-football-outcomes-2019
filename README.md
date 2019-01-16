@@ -11,12 +11,8 @@
 * src/ & public04_train_score_evaluate_pipeline.ipynb.
   * developed model train/score/evaluate/visualize pipeline with model repository, for rapid feedback when engineering features and improving the model.
     * python and bash execution files in src directory.
-    * model execution driven through 2 JSON configuration files. place them in directory models/{MODEL_ID} and run.
-```bash
-src/model_pipeline.sh {MODEL_ID}
-```
-
-    * core ideas developed with Pivotal teammate, Tim Kopp. learned many great ideas from Tim, like incorporating model choice into model config using importlib, the directory structure, using directories as a model repository, among many others.
+    * execution driven through 2 JSON configuration files. place them in directory models/{MODEL_ID} and run: src/model_pipeline.sh {MODEL_ID}
+    * core ideas developed with Pivotal teammate, Tim Kopp. learned many great ideas from Tim, like incorporating model choice into model config using importlib, the directory structure, using directories as a model repository, notebook to generate JSON, among many others.
 * public05_generate_configs_execute.ipynb
   * notebook to generate JSON configuration files.
   * thoroughly tested pipeline.
