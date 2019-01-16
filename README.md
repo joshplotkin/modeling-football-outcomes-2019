@@ -15,6 +15,7 @@
 ```bash
 src/model_pipeline.sh {MODEL_ID}
 ```
+
     * core ideas developed with Pivotal teammate, Tim Kopp. learned many great ideas from Tim, like incorporating model choice into model config using importlib, the directory structure, using directories as a model repository, among many others.
 * public05_generate_configs_execute.ipynb
   * notebook to generate JSON configuration files.
