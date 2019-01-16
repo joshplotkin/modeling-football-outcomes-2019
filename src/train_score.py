@@ -6,6 +6,7 @@ if not sys.warnoptions:
 
 import argparse
 import cPickle as pickle
+from joblib import dump
 import json
 import numpy as np
 import os
@@ -42,9 +43,38 @@ def get_model_obj(model_dict):
     model_name = model_class_str.split('.')[-1]
     model_package = importlib.import_module(model_obj_path)
     model_class = getattr(model_package, model_name)
-    in_memory = model_class_str.split('.')[0] in ['sklearn','xgboost']
+    library = model_class_str.split('.')[0]
     
-    return (model_class, in_memory)
+    return (model_class, library)
+
+def store_feature_importance(model_dict, library, mdl, set_nbr):
+    '''write feature importances for each set to csv'''
+    feature_imp = {}
+    feats = sorted(model_dict['features_list'])
+    if library == 'xgboost':
+        imp = mdl._Booster\
+                 .get_score(fmap='', importance_type='gain')
+        for i, (c, importance) in enumerate(imp.iteritems()):
+            idx = int(c[1:])
+            feature_imp[i] = {
+                'Importance': importance,
+                'Feature': feats[idx]
+            }
+    elif library == 'sklearn':
+        imp_list = mdl.feature_importances_
+        for i in range(len(feats)):
+            feature_imp[i] = {'Importance': imp_list[i], 
+                              'Feature': feats[i]}
+    
+    imp = pd.DataFrame.from_dict(
+                feature_imp, orient='index'
+            ).sort_values(
+                by='Importance', ascending=False
+            ).to_csv(
+                'stats/reported/importance_{}.csv'
+                   .format(set_nbr),
+                index=False
+            )
 
 def cv_train(model_dict, training, scoring_only, model_obj):
     '''given training/scoring data, model dict, 
@@ -71,40 +101,18 @@ def cv_train(model_dict, training, scoring_only, model_obj):
     feats = sorted(model_dict['features_list'])
     for set_nbr, set_data in training_scoring_dict.iteritems():
         if set_data['train'].shape[0] > 0:
-            training_scoring_dict[set_nbr]['model'] = \
-                model_obj(
+            mdl = model_obj(
                     **model_dict['model_params']
                 ).fit(
                     np.array(set_data['train'][feats].values.tolist()),
                     set_data['train']['label'].ravel()
                 )
-            
-            feature_imp = {}
-            feats = model_dict['features_list']
 
-            ## XGBOOST ONLY
-            imp = training_scoring_dict[set_nbr]['model']\
-                    ._Booster\
-                    .get_score(fmap='', importance_type='gain')
-            
-            for i, (c, importance) in enumerate(imp.iteritems()):
-                idx = int(c[1:])
-                feature_imp[i] = {
-                    'Importance': importance,
-                    'Feature': feats[idx]
-                }
-                
-            imp = pd.DataFrame.from_dict(
-                        feature_imp, orient='index'
-                    ).sort_values(
-                        by='Importance', ascending=False
-                    ).to_csv(
-                        'stats/reported/importance_{}.csv'
-                           .format(set_nbr),
-                        index=False
-                    )
+            store_feature_importance(model_dict, library, mdl, set_nbr)
+            training_scoring_dict[set_nbr]['model'] = mdl
+
     return training_scoring_dict
-    
+
 def cv_score(model_dict, training_scoring_dict):
     '''takes the model dict and another dict:
     keys are datasets (fold number or "full"),
@@ -136,7 +144,21 @@ def score_holdout_set(model_dict, training_scoring_dict, holdout_df):
                                 )[:,1]
     return holdout_df
 
-def save_models():
+def store_models(library, training_scoring_dict):
+    if library == 'xgboost':
+        ## save models
+        [t['model']._Booster.save_model(
+                        'serialized_models/model_{}.xgb'.format(k)
+                       ) 
+        for (k, t) in training_scoring_dict.iteritems()
+        if 'model' in t.keys()]
+    elif library == 'sklearn':
+        [dump(t['model'], 'serialized_models/model_{}.pkl'.format(k))
+        for (k, t) in training_scoring_dict.iteritems()
+        if 'model' in t.keys()]        
+    else:
+        print 'currently only support sklearn and xgboost'
+        sys.exit(1)
 
 ## START EXECUTION
 
@@ -156,21 +178,14 @@ if not os.path.exists('stats'):
     os.mkdir('stats/reported')
 
 ## as opposed to spark:
-model_obj, train_in_memory = get_model_obj(model_dict)
-## if train_in_memory is False --> spark
+model_obj, library = get_model_obj(model_dict)
 ## in memory is faster when possible
-## spark can train/score
-if train_in_memory is True:
+## spark can train/score on larger data when needed
+if library in ['sklearn','xgboost']:
     training_scoring_dict = cv_train(model_dict, training, 
                                      scoring_only, model_obj)
 
-    ## save models
-    [
-        t['model']._Booster.save_model('serialized_models/model_{}.xgb'
-                                          .format(k)) 
-        for (k, t) in training_scoring_dict.iteritems()
-        if 'model' in t.keys()
-    ]
+    store_models(library, training_scoring_dict)
 
     scores_df = cv_score(model_dict, training_scoring_dict)
     scores_df.to_csv('scores/reported_scores.csv')
