@@ -1,4 +1,28 @@
-### ER Diagram showing resulting schema
+### Work completed
+* public00_source_wrangle_data.ipynb
+  * sourced first iteration of data from around 10 sources. identified potential future sources. (scrubbed website names) 
+* public01_write_tables.ipynb
+  * QA'ed, cleaned, enriched, and did initial exploration of the data.
+  * created a star schema and wrote to Hive tables, to be queried by Spark.
+    * Spark isn't necessary for this data but the DataFrames API is great, and it makes the code scalable. the same code can run on a Spark cluster to handle more data.
+* public02_explore_scores_lines.ipynb & public03_form_visualize_labels.ipynb
+  * initial data exploration and visualization. 
+  * prepared labels and wrote to Hive tables.
+* public04_train_score_evaluate_scaffold.ipynb
+  * developed model train/score/evaluate/visualize pipeline with model repository, for rapid feedback when engineering features and improving the model.
+    * python and bash execution files in src directory
+    * model execution driven through 2 JSON configuration files. place them in directory models/{MODEL_ID} and run
+* ```bash
+src/model_pipeline.sh {MODEL_ID}
+```
+    * core ideas for scaffolding developed with Pivotal teammate, Tim Kopp. learned many great ideas from Tim, like incorporating model choice into model config using importlib, the directory structure, using directories as a model repository, among many others.
+* next steps
+  * model pipeline test cases
+  * feature engineering and model development
+* TODO
+  * regression model support
+
+### ER Diagram showing data model 
 * automated using __eralchemy__
 * code to do this is in the ER diagram notebook
 
@@ -6,19 +30,6 @@
 
 [erd]: er_diagram.png
 
-### Current status
-* built model cv train/score/eval/plot scaffolding
-  * call it from repo root dir: src/model_pipeline.sh 0114_test_ou &
-  * few more TODOs
-  * need to support regression--deciding to add it in now or later
-* next step: feature engineering (some ideas below)
-* sourced and enriched most of the desired data. some remain:
-  * sourced injury data but didn't clean/incorporate
-    * incorporating will be a challenge
-    * snap counts could help find important players
-    * it will be critical to encode things like the starting QB being out
-    * __note: due to injuries and not knowing what information was available when the line opened, might need to use only the closing line and favorite__
-  * sourced play-by-play data but didn't clean/incorporate
   * don't have passing vs. running offense or defense stats
   * hope is to eventually add advanced stats
      * profootballfocus
@@ -96,3 +107,15 @@
   * how to figure out how to incorporate injuries
   * playoff scenarios: sometimes one team is motivated while another is not (or is tanking)
     * week 17 can be tricky 
+
+### future data assets
+  * have injury data but have not incorporated. could be extremely useful.
+  * don't have passing vs. running offense or defense stats.
+  * hope is to eventually add advanced stats.
+     * profootballfocus
+     * footballoutsiders
+     * sports info solutions
+     * sharp football
+     * NFL nextgen
+     * would be nice to get schemes and dig into specific matchups, e.g. WR vs CB or O vs. D schemes
+  * how to encode team changes in the off-season, e.g. FA acquisitions
