@@ -1,0 +1,50 @@
+{
+    "model_id": "0115_test_ou", 
+    "features_tbl": "features.0111_ou_test", 
+    "labels_tbl": "labels.0111_ou_test", 
+    "index": [
+        "game_id"
+    ], 
+    "label_col": "is_sbr_ou_over", 
+    "model_params": {
+        "n_jobs": 1, 
+        "learning_rate": 0.1, 
+        "n_estimators": 200, 
+        "max_features": "auto", 
+        "booster": "gbtree", 
+        "silent": true, 
+        "nthread": null, 
+        "subsample": 0.9, 
+        "random_state": 9, 
+        "objective": "binary:logistic", 
+        "max_depth": 3, 
+        "gamma": 0
+    }, 
+    "holdout_set": {
+        "store_to_disk": false, 
+        "score_using_full_model": false
+    }, 
+    "model_cv_to_use": null, 
+    "neg_labels": [
+        -1
+    ], 
+    "pos_labels": [
+        1
+    ], 
+    "features_list": [
+        "season", 
+        "sbr_ou"
+    ], 
+    "kfold_seed": 99, 
+    "kfolds": 5, 
+    "global_dataset_proportions": {
+        "in_training": 0.5, 
+        "holdout": 0.5, 
+        "throw_away": 0, 
+        "scoring_only": 0
+    }, 
+    "strata_cols": [], 
+    "dataset_seed": 9, 
+    "model": "xgboost.XGBClassifier", 
+    "dimensional_dataset_proportions": {}
+}

@@ -1,0 +1,76 @@
+19/01/15 17:37:40 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+19/01/15 17:37:41 INFO SparkContext: Running Spark version 2.4.0
+19/01/15 17:37:41 INFO SparkContext: Submitted application: check_json_files.py
+19/01/15 17:37:41 INFO SecurityManager: Changing view acls to: joshplotkin
+19/01/15 17:37:41 INFO SecurityManager: Changing modify acls to: joshplotkin
+19/01/15 17:37:41 INFO SecurityManager: Changing view acls groups to: 
+19/01/15 17:37:41 INFO SecurityManager: Changing modify acls groups to: 
+19/01/15 17:37:41 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(joshplotkin); groups with view permissions: Set(); users  with modify permissions: Set(joshplotkin); groups with modify permissions: Set()
+19/01/15 17:37:42 INFO Utils: Successfully started service 'sparkDriver' on port 57871.
+19/01/15 17:37:42 INFO SparkEnv: Registering MapOutputTracker
+19/01/15 17:37:42 INFO SparkEnv: Registering BlockManagerMaster
+19/01/15 17:37:42 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+19/01/15 17:37:42 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+19/01/15 17:37:42 INFO DiskBlockManager: Created local directory at /private/var/folders/gv/ckc4c0x56kzgpcmdknf_sw6c0000gn/T/blockmgr-f0454129-3e12-46f1-a452-ea37bc34eb9a
+19/01/15 17:37:42 INFO MemoryStore: MemoryStore started with capacity 366.3 MB
+19/01/15 17:37:42 INFO SparkEnv: Registering OutputCommitCoordinator
+19/01/15 17:37:42 WARN Utils: Service 'SparkUI' could not bind on port 4040. Attempting port 4041.
+19/01/15 17:37:42 WARN Utils: Service 'SparkUI' could not bind on port 4041. Attempting port 4042.
+19/01/15 17:37:42 INFO Utils: Successfully started service 'SparkUI' on port 4042.
+19/01/15 17:37:42 INFO SparkUI: Bound SparkUI to 0.0.0.0, and started at http://10.55.8.34:4042
+19/01/15 17:37:42 INFO Executor: Starting executor ID driver on host localhost
+19/01/15 17:37:42 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 57872.
+19/01/15 17:37:42 INFO NettyBlockTransferService: Server created on 10.55.8.34:57872
+19/01/15 17:37:42 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+19/01/15 17:37:42 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 10.55.8.34, 57872, None)
+19/01/15 17:37:42 INFO BlockManagerMasterEndpoint: Registering block manager 10.55.8.34:57872 with 366.3 MB RAM, BlockManagerId(driver, 10.55.8.34, 57872, None)
+19/01/15 17:37:42 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 10.55.8.34, 57872, None)
+19/01/15 17:37:42 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, 10.55.8.34, 57872, None)
+19/01/15 17:37:42 INFO SharedState: loading hive config file: file:/Users/joshplotkin/Dropbox/data_science/spark_env/spark-2.4.0-bin-hadoop2.7/conf/hive-site.xml
+19/01/15 17:37:42 INFO SharedState: Setting hive.metastore.warehouse.dir ('null') to the value of spark.sql.warehouse.dir ('file:/Users/joshplotkin/Dropbox/data_science/modeling-football-outcomes/spark-warehouse/').
+19/01/15 17:37:42 INFO SharedState: Warehouse path is 'file:/Users/joshplotkin/Dropbox/data_science/modeling-football-outcomes/spark-warehouse/'.
+19/01/15 17:37:43 INFO StateStoreCoordinatorRef: Registered StateStoreCoordinator endpoint
+19/01/15 17:37:47 WARN ObjectStore: Failed to get database global_temp, returning NoSuchObjectException
+19/01/15 17:37:54 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+19/01/15 17:37:56 INFO SparkContext: Running Spark version 2.4.0
+19/01/15 17:37:56 INFO SparkContext: Submitted application: cv_data.py
+19/01/15 17:37:56 INFO SecurityManager: Changing view acls to: joshplotkin
+19/01/15 17:37:56 INFO SecurityManager: Changing modify acls to: joshplotkin
+19/01/15 17:37:56 INFO SecurityManager: Changing view acls groups to: 
+19/01/15 17:37:56 INFO SecurityManager: Changing modify acls groups to: 
+19/01/15 17:37:56 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(joshplotkin); groups with view permissions: Set(); users  with modify permissions: Set(joshplotkin); groups with modify permissions: Set()
+19/01/15 17:37:57 INFO Utils: Successfully started service 'sparkDriver' on port 57891.
+19/01/15 17:37:57 INFO SparkEnv: Registering MapOutputTracker
+19/01/15 17:37:57 INFO SparkEnv: Registering BlockManagerMaster
+19/01/15 17:37:57 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+19/01/15 17:37:57 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+19/01/15 17:37:57 INFO DiskBlockManager: Created local directory at /private/var/folders/gv/ckc4c0x56kzgpcmdknf_sw6c0000gn/T/blockmgr-9a1d9f92-af67-4eb9-8094-30ce89b554df
+19/01/15 17:37:57 INFO MemoryStore: MemoryStore started with capacity 366.3 MB
+19/01/15 17:37:57 INFO SparkEnv: Registering OutputCommitCoordinator
+19/01/15 17:37:57 WARN Utils: Service 'SparkUI' could not bind on port 4040. Attempting port 4041.
+19/01/15 17:37:57 WARN Utils: Service 'SparkUI' could not bind on port 4041. Attempting port 4042.
+19/01/15 17:37:57 INFO Utils: Successfully started service 'SparkUI' on port 4042.
+19/01/15 17:37:57 INFO SparkUI: Bound SparkUI to 0.0.0.0, and started at http://10.55.8.34:4042
+19/01/15 17:37:57 INFO Executor: Starting executor ID driver on host localhost
+19/01/15 17:37:57 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 57892.
+19/01/15 17:37:57 INFO NettyBlockTransferService: Server created on 10.55.8.34:57892
+19/01/15 17:37:57 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+19/01/15 17:37:57 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 10.55.8.34, 57892, None)
+19/01/15 17:37:57 INFO BlockManagerMasterEndpoint: Registering block manager 10.55.8.34:57892 with 366.3 MB RAM, BlockManagerId(driver, 10.55.8.34, 57892, None)
+19/01/15 17:37:57 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 10.55.8.34, 57892, None)
+19/01/15 17:37:57 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, 10.55.8.34, 57892, None)
+19/01/15 17:37:58 INFO SharedState: loading hive config file: file:/Users/joshplotkin/Dropbox/data_science/spark_env/spark-2.4.0-bin-hadoop2.7/conf/hive-site.xml
+19/01/15 17:37:58 INFO SharedState: Setting hive.metastore.warehouse.dir ('null') to the value of spark.sql.warehouse.dir ('file:/Users/joshplotkin/Dropbox/data_science/modeling-football-outcomes/spark-warehouse/').
+19/01/15 17:37:58 INFO SharedState: Warehouse path is 'file:/Users/joshplotkin/Dropbox/data_science/modeling-football-outcomes/spark-warehouse/'.
+19/01/15 17:37:58 INFO StateStoreCoordinatorRef: Registered StateStoreCoordinator endpoint
+19/01/15 17:38:03 WARN ObjectStore: Failed to get database global_temp, returning NoSuchObjectException
+19/01/15 17:38:06 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+19/01/15 17:38:07 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+19/01/15 17:38:08 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+19/01/15 17:38:08 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+19/01/15 17:38:08 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+19/01/15 17:38:08 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+19/01/15 17:38:08 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+19/01/15 17:38:09 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
