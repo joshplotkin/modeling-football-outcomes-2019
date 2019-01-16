@@ -170,7 +170,7 @@ def assign_group(model_dict, df, d, strata_cols, colname):
 
 def prep_datasets(model_dict, data_rows):
     '''given model dict and pandas DF of the rows
-    to be used for training, and the folds, 
+    (or dict of rows) to be used for training, and the folds, 
     return 2 pandas DFs: prepped training and scoring sets'''
     index = model_dict['index']
     features_prep = spark.table(model_dict['features_tbl']).select(
@@ -178,19 +178,64 @@ def prep_datasets(model_dict, data_rows):
                | set(index) )
         )
     
-    for k, rows_sdf in data_rows.iteritems():
-        if 'fold' in rows_sdf.columns:
+    if type(data_rows) is dict:
+        for k, rows_sdf in data_rows.iteritems():
+            if 'fold' in rows_sdf.columns:
+                addon_cols = ['label','fold']
+            else:
+                addon_cols = ['label']
+            prepped_sdf = features_prep.join(
+                rows_sdf.select(*(index + addon_cols)),
+                on=index
+            )
+            assert prepped_sdf.count() == rows_sdf.count()
+            data_rows[k] = prepped_sdf
+
+        return data_rows
+    else:
+        if 'fold' in data_rows.columns:
             addon_cols = ['label','fold']
         else:
             addon_cols = ['label']
         prepped_sdf = features_prep.join(
-            rows_sdf.select(*(index + addon_cols)),
+            data_rows.select(*(index + addon_cols)),
             on=index
         )
-        assert prepped_sdf.count() == rows_sdf.count()
-        data_rows[k] = prepped_sdf
+        assert prepped_sdf.count() == data_rows.count()
+        return prepped_sdf
+
+def get_test_reference_data(model_dict, cv_data):
+    '''instead of re-computing a CV set,
+    use one from a reference model. tests
+    that the index in the reference data
+    is a subset of the current data's index.'''
+    ref_datasets = {}
+    feats = sorted(model_dict['features_list'])
     
-    return data_rows
+    idx = model_dict['index']
+    ref_model_path = '../{}/cv_data'.format(model_dict['model_cv_to_use'])
+    files = os.listdir(ref_model_path)
+    
+    all_data = prep_datasets(model_dict, cv_data).toPandas()
+    
+    for f in filter(lambda x: '.csv' in x, files):
+        subset_data = pd.read_csv('{}/{}'.format(ref_model_path, f))
+        if 'fold' in subset_data.columns:
+            fields = idx + ['fold']
+        else:
+            fields = idx
+        
+        subset_data = subset_data[fields]
+        ## check that these CV sets' indexes are all represented
+        ## in the cv_data Spark DF
+        assert subset_data.merge(
+                all_data, left_on=idx, right_on=idx
+            ).shape[0] == subset_data.shape[0]
+
+        ref_datasets[f] = subset_data.merge(
+                all_data, left_on=idx, right_on=idx
+            )
+    return ref_datasets
 
 ## START EXECUTION
 ## writing to Hive tables is more scalable but writing to csv
@@ -202,20 +247,8 @@ cv_data = get_cv_data(model_dict)
 
 ## don't re-compute the CV datasets. load from a pre-existing model
 if model_dict['model_cv_to_use']:
-    ref_datasets = {}
-    idx = model_dict['index']
-    ref_model_path = '../{}/cv_data'.format(model_dict['model_cv_to_use'])
-    files = os.listdir(ref_model_path)
-    cv_idx_fold = cv_data.select(*(idx + ['fold'])).toPandas()
-    for f in files:
-        curr = pd.read_csv('{}/{}'.format(ref_model_path, f))
-        ## check that these CV sets' indexes are all represented
-        ## in the cv_data Spark DF
-        idx_ref = curr[idx]
-        assert idx_full.merge(cv_idx_fold, left_on=idx, right_on=idx).shape[0] \
-                 == idx_ref.shape[0]
-
-        ref_datasets[f] = curr.merge(cv_idx_fold, left_on=idx, right_on=idx)
+    ## get the data and make sure the indexes overlap
+    ref_datasets = get_test_reference_data(model_dict, cv_data)
         
     required_data = ['training.csv','scoring_only.csv']
     if model_dict['holdout_set']['store_to_disk'] is True:
@@ -224,7 +257,6 @@ if model_dict['model_cv_to_use']:
     assert set(required_data) == set(ref_datasets.keys())
 
     for k,v in ref_datasets.iteritems():
-        v.merge()
         v.to_csv('cv_data/{}'.format(k), index=False)
 
 ## compute CV datasets
