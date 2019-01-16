@@ -21,6 +21,7 @@
   * feature engineering and model development.
 * backlog
   * regression model support.
+  * continuous stratified sampling columns (using binning)
 
 ### ER Diagram showing data model 
 * automated using __eralchemy__
