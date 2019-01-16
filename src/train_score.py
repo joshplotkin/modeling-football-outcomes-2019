@@ -104,7 +104,7 @@ def cv_train(model_dict, training, scoring_only, model_obj):
             mdl = model_obj(
                     **model_dict['model_params']
                 ).fit(
-                    np.array(set_data['train'][feats].fillna(0).values.tolist()),
+                    np.array(set_data['train'][feats].values.tolist()),
                     set_data['train']['label'].ravel()
                 )
 
@@ -125,7 +125,7 @@ def cv_score(model_dict, training_scoring_dict):
         curr_scoring = mdl['score']
         if curr_scoring.shape[0] > 0:
             curr_scoring['score'] = mdl['model'].predict_proba(
-                                        curr_scoring[feats].fillna(0).values.tolist()
+                                        curr_scoring[feats].values.tolist()
                                     )[:,1]
             if i == 0:
                 scores_df = curr_scoring
