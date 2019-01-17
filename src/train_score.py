@@ -76,6 +76,29 @@ def store_feature_importance(model_dict, library, mdl, set_nbr):
                 index=False
             )
 
+def check_bad_values(df):
+    err_strs = []
+    for c in df.columns:
+        col_errs = []
+        ## nulls
+        if df[c].dropna().shape[0] != df[c].shape[0]:
+            col_errs.append('null value(s)')
+        if df[c].abs().max() == np.inf:
+            col_errs.append('inf or -inf value(s)')
+            
+        if len(col_errs) == 0:
+            pass
+        elif len(col_errs) == 1:
+            col_str = 'column {} has {}'\
+                         .format(c, col_errs[0])
+            err_strs.append(col_str)
+        else:
+            col_str = 'column {} has {} and {}'\
+                         .format(c, *col_errs)
+            err_strs.append(col_str)
+        
+    return err_strs 
+
 def cv_train(model_dict, training, scoring_only, model_obj):
     '''given training/scoring data, model dict, 
     and a model obj, train k models plus the entire
@@ -101,6 +124,18 @@ def cv_train(model_dict, training, scoring_only, model_obj):
     feats = sorted(model_dict['features_list'])
     for set_nbr, set_data in training_scoring_dict.iteritems():
         if set_data['train'].shape[0] > 0:
+            ## if library == 'xgboost' then warning
+            ## if library == 'sklean' then fail
+            err_strs = check_bad_values(set_data['train'][feats + ['label']])
+            if (err_strs != []) & (library == 'sklearn'):
+                print 'ERROR'
+                print '\n'.join(err_strs)
+                print 'Exiting...'
+                sys.exit(1)
+            elif (err_strs != []) & (library == 'xgboost'):
+                print 'WARNING'
+                print '\n'.join(err_strs)
+            
             mdl = model_obj(
                     **model_dict['model_params']
                 ).fit(
