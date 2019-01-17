@@ -12,6 +12,7 @@ from matplotlib import rcParams
 import numpy as np
 import os
 import pandas as pd
+import seaborn as sns
 
 ## custom rcParams settings for matplotlib
 sys.path.append('config')
@@ -33,6 +34,56 @@ os.chdir('models/{}'.format(model_id))
 ## load model and plots configuration files
 model_dict = json.load(open('model.json','r'))
 plots_dict = json.load(open('plots.json','r'))
+
+def ridge_plot(plots_dict, scores_df):
+    '''took the following from the seaborn documentation
+    https://seaborn.pydata.org/examples/kde_ridgeplot.html
+    and applied it to visualizing score distributions
+    '''
+    import imp
+    ridge_df = scores_df[['label','score']].rename(
+            columns={'score':'Score'}
+        ).assign(
+            **{'label': scores_df['label'].astype(str).map(plots_dict['label_map'])}
+        )
+
+    title='Score Distributions of {} vs. {}'\
+                         .format(plots_dict['label_map']['1'], 
+                                 plots_dict['label_map']['0'])
+    sns.set(style='white', rc={'axes.facecolor': (0, 0, 0, 0)})
+    
+    # Create the data
+    pal = sns.cubehelix_palette(3, rot=-.25, light=.7)
+    g = sns.FacetGrid(
+        ridge_df, row='label', hue='label', 
+        aspect=3, height=2.5, palette=['#35978f','#9970ab']
+    )
+
+    ## first the curve, then a white line, then axis
+    g.map(sns.kdeplot, 'Score', clip_on=False, shade=True, alpha=1, lw=1.5, bw=.2)
+    g.map(sns.kdeplot, 'Score', clip_on=False, color='#f0f0f0', lw=2, bw=.2)
+
+    # add nice distribution label on the left
+    def label(x, color, label):
+        ax = plt.gca()
+        ax.text(-0.2, .2, label, fontweight='bold', color=color,
+                ha='left', va='center', transform=ax.transAxes)
+    g.map(label, 'Score')
+    
+    g.fig.suptitle(title)
+    # add the overlap effect
+    g.fig.subplots_adjust(hspace=-.25)
+    # get rid of the facet labels
+    g.set_titles("")
+    g.set(yticks=[])
+    g.set(xlim=(0, 1))
+    g.despine(bottom=True, left=True)
+    
+    g.savefig('{}/score_densities.png'.format(plots_dir))
+
+    ## resets the style from the white theme
+    imp.reload(plt); imp.reload(sns)
+    import mpl_style
 
 def compute_bins(plots_dict, df, nbins, bin_type):
     '''given a pandas DF of scores and labels,
@@ -410,7 +461,6 @@ if not os.path.exists('plots'):
     os.mkdir('plots')
 if not os.path.exists('stats'): 
     os.mkdir('stats')
-
     
 for scores_csv in os.listdir('scores'):
     dirname = scores_csv.replace('_scores.csv','')
@@ -425,13 +475,16 @@ for scores_csv in os.listdir('scores'):
         'scores/{}'.format(scores_csv), 
         index_col=model_dict['index']
     )
-
+    
     ## Plot metrics by score threshold
     for metric in plots_dict['threshold_metrics']:
         metric_by_threshold = plot_by_threshold(scores_df, metric, plots_dir)
         metric_by_threshold.to_csv('{}/metric_by_threshold__{}.csv'
                                       .format(stats_dir, metric))
-
+        
+    ## Plot density estimate comparisons
+    ridge_plot(plots_dict, scores_df)
+    
     ## Plot distributions
     for bin_type in plots_dict['bin_types']:
         for nbins in plots_dict['plot_bins']:
