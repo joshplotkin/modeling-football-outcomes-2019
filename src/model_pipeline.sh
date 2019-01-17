@@ -12,6 +12,7 @@ fi
 mkdir -p models/$1/logs
 rm -f models/$1/{out,err,*png,*csv,*xgb} models/$1/*/{out,err,*png,*csv,*xgb}
 
+touch "models/$1/`date +"%F %T"`"
 echo "Check JSON files" && \
 time sh src/check_json_files.sh $1 && \
 echo "" && \
