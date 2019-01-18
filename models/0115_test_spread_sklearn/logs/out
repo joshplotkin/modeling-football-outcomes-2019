@@ -1,14 +1,4 @@
 JSON configuration files passed checks.
 cv sets wrote successfully.
-Traceback (most recent call last):
-  File "src/eval_plot.py", line 486, in <module>
-    ridge_plot(plots_dict, scores_df)
-  File "src/eval_plot.py", line 86, in ridge_plot
-    imp.reload(mpl_style)
-ImportError: No module named mpl_style
-successfully completed evaluation and plotting.
-successfully completed evaluation and plotting.
-successfully completed evaluation and plotting.
-successfully completed evaluation and plotting.
 successfully completed evaluation and plotting.
 successfully completed evaluation and plotting.
