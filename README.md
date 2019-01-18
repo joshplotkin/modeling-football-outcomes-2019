@@ -31,7 +31,7 @@
 
 ![E-R Diagram for Database][erd]
 
-[erd]: er_diagram.png
+[erd]: img/er_diagram.png
 
   * don't have passing vs. running offense or defense stats
   * hope is to eventually add advanced stats
@@ -39,6 +39,7 @@
      * sports info solutions
      * sharp football
      * NFL nextgen
+     * historical prop bet lines?
      * pregame.com
      * would be nice to get schemes and dig into specific matchups, e.g. WR vs CB or O vs. D schemes
   * how to encode team changes in the off-season, e.g. FA acquisitions
@@ -69,6 +70,7 @@
     * using prop bet lines? (historical data will be hard to find)
     * team's record vs. coach
     * previous team(s) faced (ranks as proxy for teams)
+    * some measure if a team is a good fit for this weather
     * some proxy for home field advantage: wins above expected?
     * QB recent matchups with team
     * home team (binary)
