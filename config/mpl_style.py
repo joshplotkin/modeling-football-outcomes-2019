@@ -39,15 +39,22 @@ rcParams['lines.solid_capstyle'] = 'butt'
 
 rcParams['patch.edgecolor'] = '#f0f0f0'
 rcParams['patch.linewidth'] = 0.5
+## put a small gap between bars
+rcParams['patch.force_edgecolor'] = True
 
 rcParams['savefig.edgecolor'] =  '#f0f0f0'
 rcParams['savefig.facecolor'] =  '#f0f0f0'
 
 rcParams['svg.fonttype'] =  'path'
 
+rcParams['xtick.color'] = '#262626'
+rcParams['xtick.labelsize'] = 11
 rcParams['xtick.major.size'] =  0
 rcParams['xtick.minor.size'] =  0
 rcParams['ytick.major.size'] =  0
+
+rcParams['ytick.color'] = '#262626'
+rcParams['ytick.labelsize'] = 11
 rcParams['ytick.minor.size'] =  0
 
 ## colors
