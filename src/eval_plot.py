@@ -40,7 +40,11 @@ def ridge_plot(plots_dict, scores_df):
     https://seaborn.pydata.org/examples/kde_ridgeplot.html
     and applied it to visualizing score distributions
     '''
-    import imp
+    ## backup of matplotlib parameters 
+    ## to reset at the bottom of this function
+    import matplotlib as mpl
+    params_backup = rcParams.copy()
+    
     ridge_df = scores_df[['label','score']].rename(
             columns={'score':'Score'}
         ).assign(
@@ -78,12 +82,11 @@ def ridge_plot(plots_dict, scores_df):
     g.set(yticks=[])
     g.set(xlim=(0, 1))
     g.despine(bottom=True, left=True)
-    
     g.savefig('{}/score_densities.png'.format(plots_dir))
-
-    ## resets the style from the white theme
-    imp.reload(plt); imp.reload(sns)
-    import mpl_style
+    plt.clf()
+    
+    ## reset matplotlib parameters
+    mpl.rcParams.update(params_backup)
 
 def compute_bins(plots_dict, df, nbins, bin_type):
     '''given a pandas DF of scores and labels,
@@ -141,6 +144,7 @@ def compute_plot_bins(plots_dict, df, nbins, bin_type, colors, plots_dir):
     skipticks = int(np.ceil(nbins / 20.))
     a, b = plt.xticks()
     plt.xticks(a[::skipticks], b[::skipticks])
+    plt.tight_layout()
     plt.savefig('{}/distributions__{}_{}bins.png'
                     .format(plots_dir, bin_type, nbins))
     plt.cla()
@@ -220,6 +224,7 @@ def plot_trend(plots_dict, df, bin_type, nbins, plots_dir):
     plt.xlabel('Score {}s'.format(bin_type))    
     a, b = plt.xticks()
     plt.xticks(a[::skipticks], b[::skipticks])
+    plt.tight_layout()
     plt.savefig('{}/score_trend__{}_{}bins.png'
                   .format(plots_dir, bin_type, nbins))
     plt.cla()
@@ -301,6 +306,7 @@ def roc_plot_kfold_errband(roc_sets, plots_dir):
     _ = plt.ylabel('True Positive Rate')
     _ = plt.title('ROC Curve')
     _ = plt.legend(loc="lower right")
+    plt.tight_layout()
     plt.savefig('{}/roc.png'.format(plots_dir))
     plt.cla()
 
@@ -354,6 +360,7 @@ def plot_by_threshold(df, metric, plots_dir):
     )
     _ = plt.legend()
     _ = plt.ylabel(metric)
+    plt.tight_layout()
     plt.savefig('{}/thresholds_by_{}.png'.format(plots_dir, metric))
     return acc_df
 
@@ -454,6 +461,7 @@ def plot_feature_importance(importance):
     plt.yticks(a, b, fontsize=10)
     plt.xlabel('Importance Values')
     plt.ylabel('Feature Name & Importance Value')
+    plt.tight_layout()
     plt.savefig('plots/reported/importance.png')
 
 ## START EXECUTION
@@ -484,7 +492,7 @@ for scores_csv in os.listdir('scores'):
         
     ## Plot density estimate comparisons
     ridge_plot(plots_dict, scores_df)
-    
+
     ## Plot distributions
     for bin_type in plots_dict['bin_types']:
         for nbins in plots_dict['plot_bins']:
@@ -509,6 +517,7 @@ for scores_csv in os.listdir('scores'):
         roc_sets = {'Full': scores_df}
     roc_plot_kfold_errband(roc_sets, plots_dir)
     
+       
 ## run only for training aka reported model
 importance = get_feat_importance_df()
 importance.to_csv('stats/reported/importance_agg.csv')
