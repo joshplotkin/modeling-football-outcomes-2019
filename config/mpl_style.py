@@ -60,5 +60,6 @@ rcParams['ytick.minor.size'] =  0
 ## colors
 color_palette = 'Set2'
 colors = sns.color_palette(color_palette)
-sns.palplot(sns.color_palette(color_palette))
+def print_colors():
+    sns.palplot(sns.color_palette(color_palette))
 rcParams['axes.prop_cycle'] = cycler(color=colors)
