@@ -14,13 +14,13 @@ rm -f models/$1/{out,err,*png,*csv,*xgb} models/$1/*/{out,err,*png,*csv,*xgb}
 
 touch "models/$1/`date +"%F %T"`"
 echo "Check JSON files" && \
-time sh src/check_json_files.sh $1 && \
+time sh model_pipeline/check_json_files.sh $1 && \
 echo "" && \
 echo "Cross-validation data" && \
-time sh src/cv_data.sh $1 && \
+time sh model_pipeline/cv_data.sh $1 && \
 echo "" && \
 echo "Train and score" && \
-time sh src/train_score.sh $1 && \
+time sh model_pipeline/train_score.sh $1 && \
 echo "" && \
 echo "Evaluate and plot" && \
-time sh src/eval_plot.sh $1
+time sh model_pipeline/eval_plot.sh $1

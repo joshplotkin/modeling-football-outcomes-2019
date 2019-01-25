@@ -7,8 +7,8 @@ fi
 MODEL_ID=$1
 MODEL_DIR=models/$1
 
-source src/spark_submit_init.sh
+source model_pipeline/spark_submit_init.sh
 spark-submit \
    --conf 'spark.executor.extraJavaOptions=-Dlog4j.configuration=/spark_logs/executor' \
    --conf 'spark.driver.extraJavaOptions=-Dlog4j.configuration=/spark_logs/driver' \
-   src/cv_data.py $MODEL_ID >> $MODEL_DIR/logs/out 2>> $MODEL_DIR/logs/err
+   model_pipeline/cv_data.py $MODEL_ID >> $MODEL_DIR/logs/out 2>> $MODEL_DIR/logs/err
