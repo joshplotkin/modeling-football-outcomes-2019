@@ -53,8 +53,6 @@
    * would be nice to get schemes and dig into specific matchups, e.g. WR vs CB or O vs. D schemes
 * how to encode team changes in the off-season? e.g. FA acquisitions
 
-### High level plan; filling in with ideas as they come up
-
 ### Open Questions
 * for labels, each row is a game
   * which team should the spread be based off of?
