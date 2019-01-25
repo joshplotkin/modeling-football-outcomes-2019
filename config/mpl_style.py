@@ -19,7 +19,7 @@ rcParams['axes.titlesize'] = 16
 
 rcParams['figure.dpi'] = 96
 rcParams['figure.facecolor'] =  '#f0f0f0'
-rcParams['figure.figsize'] = (12,8)
+rcParams['figure.figsize'] = (16,12)
 rcParams['figure.titlesize'] = 14
 rcParams['figure.titleweight'] = 'bold'
 rcParams['figure.subplot.left'] =  0.08
