@@ -34,7 +34,7 @@
 
 ### ER Diagram showing data model 
 * automated using __eralchemy__
-* code to do this is in the ER diagram notebook
+* code to do this is in the ER diagram notebook (misc/er_diagram.ipynb)
 
 ![E-R Diagram for Database][erd]
 
