@@ -223,13 +223,13 @@ if library in ['sklearn','xgboost']:
     store_models(library, training_scoring_dict)
 
     scores_df = cv_score(model_dict, training_scoring_dict)
-    scores_df.to_csv('scores/reported_scores.csv')
+    scores_df[['label','score']].to_csv('scores/reported_scores.csv')
     
     if model_dict['holdout_set']['score_using_full_model']:
         holdout = pd.read_csv('cv_data/holdout.csv')
         holdout = score_holdout_set(model_dict, training_scoring_dict, 
                                     holdout)
-        holdout.to_csv('scores/holdout_scores.csv')
+        holdout[['label','score']].to_csv('scores/holdout_scores.csv')
 
         print 'successfully completed training/scoring.'
 else:

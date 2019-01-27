@@ -177,6 +177,7 @@ def prep_datasets(model_dict, data_rows):
             *( set(model_dict['features_list']) 
                | set(index) )
         )
+    features_list = model_dict['features_list']
     
     if type(data_rows) is dict:
         for k, rows_sdf in data_rows.iteritems():
@@ -187,6 +188,8 @@ def prep_datasets(model_dict, data_rows):
             prepped_sdf = features_prep.join(
                 rows_sdf.select(*(index + addon_cols)),
                 on=index
+            ).select(
+                *(index + addon_cols + features_list)
             )
             assert prepped_sdf.count() == rows_sdf.count()
             data_rows[k] = prepped_sdf
@@ -200,6 +203,8 @@ def prep_datasets(model_dict, data_rows):
         prepped_sdf = features_prep.join(
             data_rows.select(*(index + addon_cols)),
             on=index
+        ).select(
+            *(index + addon_cols + features_list)
         )
         assert prepped_sdf.count() == data_rows.count()
         return prepped_sdf
@@ -257,7 +262,9 @@ if model_dict['model_cv_to_use']:
     assert set(required_data) == set(ref_datasets.keys())
 
     for k,v in ref_datasets.iteritems():
-        v.to_csv('cv_data/{}'.format(k), index=False)
+        v[model_dict['index'] 
+          + model_dict['features_list']
+         ].to_csv('cv_data/{}'.format(k), index=False)
 
 ## compute CV datasets
 else:
