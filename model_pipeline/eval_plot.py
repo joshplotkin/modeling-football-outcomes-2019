@@ -287,8 +287,10 @@ def roc_plot_kfold_errband(roc_sets, plots_dir):
                           .format(mean_auc, std_auc),
                  lw=2, alpha=.8)
     else:
-        _ = plt.plot(mean_fpr, mean_tpr, color=colors[0],
-                 label=r'Overall ROC', lw=2, alpha=.8)
+        _ = plt.plot(mean_fpr, mean_tpr, color=colors[0], 
+                     lw=2, alpha=.8,
+                     label=r'Overall ROC (AUC = {:.2f} $\pm$ {:.2f})'
+                                 .format(mean_auc, std_auc))
 
     ## add error bands, +/- 1 stddev
     std_tpr = np.std(tprs, axis=0)

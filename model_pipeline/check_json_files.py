@@ -54,6 +54,16 @@ for tbl_str in ['features_tbl','features_tbl']:
         ).filter(
             col('tableName') == tbl
         ).count() == 1
+    
+## assert that labels and features share identical index
+a = spark.table(model_dict['features_tbl']).count()
+b = spark.table(model_dict['labels_tbl']).count()
+c = spark.table(model_dict['features_tbl']).join(
+    spark.table(model_dict['labels_tbl']),
+    on=model_dict['index']
+).count()
+assert a == b
+assert a == c
 
 feat_cols_set = set(spark.table(model_dict['features_tbl']).columns)
 label_cols_set = set(spark.table(model_dict['labels_tbl']).columns)
