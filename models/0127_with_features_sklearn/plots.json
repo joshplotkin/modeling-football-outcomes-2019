@@ -1,0 +1,20 @@
+{
+    "model_id": "0127_with_features_sklearn", 
+    "threshold_metrics": [
+        "Accuracy", 
+        "F1"
+    ], 
+    "plot_bins": [
+        10, 
+        100
+    ], 
+    "bin_types": [
+        "Bin", 
+        "Percentile"
+    ], 
+    "success_name": "Cover Rate", 
+    "label_map": {
+        "1": "Covered", 
+        "0": "Did Not Cover"
+    }
+}

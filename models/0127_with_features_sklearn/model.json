@@ -1,0 +1,56 @@
+{
+    "model_id": "0127_with_features_sklearn", 
+    "features_tbl": "features.combined_0127", 
+    "labels_tbl": "labels.0127_home_team", 
+    "index": [
+        "game_id"
+    ], 
+    "label_col": "did_cover_sbr", 
+    "model_params": {
+        "n_jobs": 1, 
+        "learning_rate": 0.1, 
+        "n_estimators": 200, 
+        "max_features": "auto", 
+        "booster": "gbtree", 
+        "silent": true, 
+        "nthread": null, 
+        "subsample": 0.9, 
+        "random_state": 9, 
+        "objective": "binary:logistic", 
+        "max_depth": 12, 
+        "gamma": 0
+    }, 
+    "holdout_set": {
+        "store_to_disk": false, 
+        "score_using_full_model": false
+    }, 
+    "model_cv_to_use": null, 
+    "neg_labels": [
+        -1
+    ], 
+    "pos_labels": [
+        1
+    ], 
+    "features_list": [
+        "line___close_ou", 
+        "line___h_close_line", 
+        "line___h_ml", 
+        "time_date___day_of_week", 
+        "time_date___game_time_local", 
+        "time_date___week_id"
+    ], 
+    "kfold_seed": 99, 
+    "kfolds": 5, 
+    "global_dataset_proportions": {
+        "in_training": 1.0, 
+        "holdout": 0, 
+        "throw_away": 0, 
+        "scoring_only": 0
+    }, 
+    "strata_cols": [
+        "did_cover_sbr"
+    ], 
+    "dataset_seed": 9, 
+    "model": "xgboost.XGBClassifier", 
+    "dimensional_dataset_proportions": {}
+}

@@ -1,0 +1,78 @@
+19/01/27 23:37:27 WARN Utils: Your hostname, Joshs-MBP.fios-router.home resolves to a loopback address: 127.0.0.1; using 192.168.1.151 instead (on interface en0)
+19/01/27 23:37:27 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+19/01/27 23:37:27 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+19/01/27 23:37:28 INFO SparkContext: Running Spark version 2.4.0
+19/01/27 23:37:28 INFO SparkContext: Submitted application: check_json_files.py
+19/01/27 23:37:28 INFO SecurityManager: Changing view acls to: joshplotkin
+19/01/27 23:37:28 INFO SecurityManager: Changing modify acls to: joshplotkin
+19/01/27 23:37:28 INFO SecurityManager: Changing view acls groups to: 
+19/01/27 23:37:28 INFO SecurityManager: Changing modify acls groups to: 
+19/01/27 23:37:28 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(joshplotkin); groups with view permissions: Set(); users  with modify permissions: Set(joshplotkin); groups with modify permissions: Set()
+19/01/27 23:37:28 INFO Utils: Successfully started service 'sparkDriver' on port 60741.
+19/01/27 23:37:28 INFO SparkEnv: Registering MapOutputTracker
+19/01/27 23:37:28 INFO SparkEnv: Registering BlockManagerMaster
+19/01/27 23:37:28 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+19/01/27 23:37:28 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+19/01/27 23:37:28 INFO DiskBlockManager: Created local directory at /private/var/folders/gv/ckc4c0x56kzgpcmdknf_sw6c0000gn/T/blockmgr-755a9622-e790-4de7-b36f-2d6f281539ac
+19/01/27 23:37:28 INFO MemoryStore: MemoryStore started with capacity 366.3 MB
+19/01/27 23:37:28 INFO SparkEnv: Registering OutputCommitCoordinator
+19/01/27 23:37:28 WARN Utils: Service 'SparkUI' could not bind on port 4040. Attempting port 4041.
+19/01/27 23:37:28 WARN Utils: Service 'SparkUI' could not bind on port 4041. Attempting port 4042.
+19/01/27 23:37:28 WARN Utils: Service 'SparkUI' could not bind on port 4042. Attempting port 4043.
+19/01/27 23:37:28 WARN Utils: Service 'SparkUI' could not bind on port 4043. Attempting port 4044.
+19/01/27 23:37:28 INFO Utils: Successfully started service 'SparkUI' on port 4044.
+19/01/27 23:37:28 INFO SparkUI: Bound SparkUI to 0.0.0.0, and started at http://192.168.1.151:4044
+19/01/27 23:37:28 INFO Executor: Starting executor ID driver on host localhost
+19/01/27 23:37:28 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 60766.
+19/01/27 23:37:28 INFO NettyBlockTransferService: Server created on 192.168.1.151:60766
+19/01/27 23:37:28 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+19/01/27 23:37:28 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 192.168.1.151, 60766, None)
+19/01/27 23:37:28 INFO BlockManagerMasterEndpoint: Registering block manager 192.168.1.151:60766 with 366.3 MB RAM, BlockManagerId(driver, 192.168.1.151, 60766, None)
+19/01/27 23:37:28 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 192.168.1.151, 60766, None)
+19/01/27 23:37:28 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, 192.168.1.151, 60766, None)
+19/01/27 23:37:29 INFO SharedState: loading hive config file: file:/Users/joshplotkin/Dropbox/data_science/spark_env/spark-2.4.0-bin-hadoop2.7/conf/hive-site.xml
+19/01/27 23:37:29 INFO SharedState: Setting hive.metastore.warehouse.dir ('null') to the value of spark.sql.warehouse.dir ('file:/Users/joshplotkin/Dropbox/data_science/modeling-football-outcomes/spark-warehouse/').
+19/01/27 23:37:29 INFO SharedState: Warehouse path is 'file:/Users/joshplotkin/Dropbox/data_science/modeling-football-outcomes/spark-warehouse/'.
+19/01/27 23:37:29 INFO StateStoreCoordinatorRef: Registered StateStoreCoordinator endpoint
+19/01/27 23:37:33 WARN ObjectStore: Failed to get database global_temp, returning NoSuchObjectException
+19/01/27 23:37:35 WARN Utils: Truncated the string representation of a plan since it was too large. This behavior can be adjusted by setting 'spark.debug.maxToStringFields' in SparkEnv.conf.
+19/01/27 23:37:41 WARN Utils: Your hostname, Joshs-MBP.fios-router.home resolves to a loopback address: 127.0.0.1; using 192.168.1.151 instead (on interface en0)
+19/01/27 23:37:41 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+19/01/27 23:37:41 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+19/01/27 23:37:44 INFO SparkContext: Running Spark version 2.4.0
+19/01/27 23:37:44 INFO SparkContext: Submitted application: cv_data.py
+19/01/27 23:37:44 INFO SecurityManager: Changing view acls to: joshplotkin
+19/01/27 23:37:44 INFO SecurityManager: Changing modify acls to: joshplotkin
+19/01/27 23:37:44 INFO SecurityManager: Changing view acls groups to: 
+19/01/27 23:37:44 INFO SecurityManager: Changing modify acls groups to: 
+19/01/27 23:37:44 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(joshplotkin); groups with view permissions: Set(); users  with modify permissions: Set(joshplotkin); groups with modify permissions: Set()
+19/01/27 23:37:44 INFO Utils: Successfully started service 'sparkDriver' on port 61720.
+19/01/27 23:37:44 INFO SparkEnv: Registering MapOutputTracker
+19/01/27 23:37:44 INFO SparkEnv: Registering BlockManagerMaster
+19/01/27 23:37:44 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+19/01/27 23:37:44 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+19/01/27 23:37:44 INFO DiskBlockManager: Created local directory at /private/var/folders/gv/ckc4c0x56kzgpcmdknf_sw6c0000gn/T/blockmgr-b96e2314-b1fb-4ce6-962b-226b184ad6fd
+19/01/27 23:37:44 INFO MemoryStore: MemoryStore started with capacity 366.3 MB
+19/01/27 23:37:44 INFO SparkEnv: Registering OutputCommitCoordinator
+19/01/27 23:37:44 WARN Utils: Service 'SparkUI' could not bind on port 4040. Attempting port 4041.
+19/01/27 23:37:44 WARN Utils: Service 'SparkUI' could not bind on port 4041. Attempting port 4042.
+19/01/27 23:37:44 WARN Utils: Service 'SparkUI' could not bind on port 4042. Attempting port 4043.
+19/01/27 23:37:44 WARN Utils: Service 'SparkUI' could not bind on port 4043. Attempting port 4044.
+19/01/27 23:37:44 INFO Utils: Successfully started service 'SparkUI' on port 4044.
+19/01/27 23:37:44 INFO SparkUI: Bound SparkUI to 0.0.0.0, and started at http://192.168.1.151:4044
+19/01/27 23:37:44 INFO Executor: Starting executor ID driver on host localhost
+19/01/27 23:37:44 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 61747.
+19/01/27 23:37:44 INFO NettyBlockTransferService: Server created on 192.168.1.151:61747
+19/01/27 23:37:44 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+19/01/27 23:37:44 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 192.168.1.151, 61747, None)
+19/01/27 23:37:44 INFO BlockManagerMasterEndpoint: Registering block manager 192.168.1.151:61747 with 366.3 MB RAM, BlockManagerId(driver, 192.168.1.151, 61747, None)
+19/01/27 23:37:44 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 192.168.1.151, 61747, None)
+19/01/27 23:37:44 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, 192.168.1.151, 61747, None)
+19/01/27 23:37:45 INFO SharedState: loading hive config file: file:/Users/joshplotkin/Dropbox/data_science/spark_env/spark-2.4.0-bin-hadoop2.7/conf/hive-site.xml
+19/01/27 23:37:45 INFO SharedState: Setting hive.metastore.warehouse.dir ('null') to the value of spark.sql.warehouse.dir ('file:/Users/joshplotkin/Dropbox/data_science/modeling-football-outcomes/spark-warehouse/').
+19/01/27 23:37:45 INFO SharedState: Warehouse path is 'file:/Users/joshplotkin/Dropbox/data_science/modeling-football-outcomes/spark-warehouse/'.
+19/01/27 23:37:45 INFO StateStoreCoordinatorRef: Registered StateStoreCoordinator endpoint
+19/01/27 23:37:49 WARN ObjectStore: Failed to get database global_temp, returning NoSuchObjectException
+19/01/27 23:37:55 WARN Utils: Truncated the string representation of a plan since it was too large. This behavior can be adjusted by setting 'spark.debug.maxToStringFields' in SparkEnv.conf.
