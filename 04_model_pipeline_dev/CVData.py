@@ -20,23 +20,39 @@ class CVData:
         if self.model_dict['kfolds'] <= 1:
             assert datasets.filter(col('dataset') == 'scoring_only').count() > 0
 
-        scoring_rows = datasets.filter(col('dataset') == 'scoring_only')
         training_rows = datasets.filter(col('dataset') == 'in_training')
+        scoring_rows = datasets.filter(col('dataset').isin(['scoring_only','holdout']))
 
         training_rows = self.assign_k_folds(training_rows)
         training, scoring_only = self.get_training_scoring_sets(training_rows, scoring_rows)
 
         self.training = training
-        self.scoring_only = scoring_only
+        self.scoring_only = scoring_only\
+                                .filter(col('dataset') == 'scoring_only')\
+                                .drop('dataset')
+        self.holdout = scoring_only\
+                                .filter(col('dataset') == 'holdout')\
+                                .drop('dataset')
 
-    def write_data(self, outdir):
-        self.training.toPandas().to_csv(f'{outdir}/training.csv', index=False)
-        self.scoring_only.toPandas().to_csv(f'{outdir}/scoring_only.csv', index=False)
+    def write_data(self, training, scoring_only, holdout, write_dir):
+        training.to_csv(f'{write_dir}/training.csv', index=False)
+        scoring_only.to_csv(f'{write_dir}/scoring_only.csv', index=False)
+        holdout.to_csv(f'{write_dir}/holdout.csv', index=False)
+
+    def get_csv_data(self, write_dir=None):
+        training = self.training.toPandas()
+        scoring_only = self.scoring_only.toPandas()
+        holdout = self.holdout.toPandas()
+        if write_dir:
+            self.write_data(training, scoring_only, holdout, write_dir)
+        return {'training': training,
+                'scoring_only': scoring_only,
+                'holdout': holdout}
 
     def get_cv_data(self):
-        '''using model dict, add random seeds,
+        """using model dict, add random seeds,
         make labels in [0,1], and return only
-        relevant columns'''
+        relevant columns"""
         model_dict = self.model_dict
         labels_prep = self.spark.table(model_dict['labels_tbl']).select(
             *(set(model_dict['index'])
@@ -64,12 +80,12 @@ class CVData:
         )
 
     def prop_dict_rolling(self, d):
-        '''given a dictionary of probabilities, where
+        """given a dictionary of probabilities, where
         the values are floats that sum to 1,
         return a dictionary with the same keys, where
         the values are disjoint windows.
         usage note: top is inclusive. bottom is exclusive unless 0.
-        usage note: if both elements are the same, skip'''
+        usage note: if both elements are the same, skip"""
         rolling_sum = 0
         rolling = {}
         for k, v in d.items():
@@ -78,12 +94,12 @@ class CVData:
         return rolling
 
     def assign_group(self, df, d, colname):
-        '''given (1) a dictionary of ranges,
+        """given (1) a dictionary of ranges,
         (2) a DF with random values ranked
         by random block, and
         (3) a name for the grouped columns,
         return DF with a new column that
-        assigns group membership'''
+        assigns group membership"""
         strata_cols = self.model_dict['strata_cols']
         window = Window.orderBy('dataset_rnd') \
             .partitionBy(*self.model_dict['strata_cols'])
@@ -110,12 +126,12 @@ class CVData:
         return df.withColumn(colname, group_assign_cond)
 
     def modify_group_for_dim(self, df, colname):
-        '''given a DF with a groups assigned (variable colname),
+        """given a DF with a groups assigned (variable colname),
         apply a dictionary to post-process the groups according
         to that one dimension. returns original DF with modified
         colname column.
         e.g. move specific seasons to the holdout or throwaway sets.
-        '''
+        """
         dim_props = self.model_dict['dimensional_dataset_proportions'].items()
         for grp, grp_dict_list in dim_props:
             for grp_dict in grp_dict_list:
@@ -174,11 +190,11 @@ class CVData:
         )
 
         training = features_prep.join(
-            training_rows.select(*(index + ['label', 'fold'])),
+            training_rows.select(*(index + ['label', 'fold', 'season', 'week_id'])),
             on=index
         )
         scoring_only = features_prep.join(
-            scoring_rows.select(*(index + ['label'])),
+            scoring_rows.select(*(index + ['label','dataset', 'season', 'week_id'])),
             on=index
         )
 
