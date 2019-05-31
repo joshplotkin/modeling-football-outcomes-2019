@@ -161,6 +161,12 @@ try:
 except Exception as e:
     e
 
+## dimensional_dataset_proportions uses strata cols for 'dim' entry
+for val in model_dict['dimensional_dataset_proportions'].values():
+    for element in val:
+        assert element['dim'] in model_dict['strata_cols']
+        
+
 ### Plot Labels
 assert type(plots_dict['label_map']) is dict
 assert type(plots_dict['success_name']) in [str, unicode]
