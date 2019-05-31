@@ -1,7 +1,7 @@
 {
-    "model_id": "0320_with_rankings_winner_20feats_noml", 
+    "model_id": "dev",
     "features_tbl": "features.combined_0320", 
-    "labels_tbl": "labels.combined_0320", 
+    "labels_tbl": "labels.combined_0320",
     "index": [
         "game_id"
     ], 
@@ -56,14 +56,15 @@
     "kfold_seed": 99, 
     "kfolds": 5, 
     "global_dataset_proportions": {
-        "in_training": 1.0, 
+        "in_training": 1.0,
         "holdout": 0, 
         "throw_away": 0, 
         "scoring_only": 0
     }, 
     "strata_cols": [
         "did_cover_sbr", 
-        "week_id"
+        "week_id",
+        "season"
     ], 
     "dataset_seed": 9, 
     "model": "xgboost.XGBClassifier", 
@@ -90,6 +91,11 @@
                     "scoring_only"
                 ]
             }
-        ]
+        ],
+        "holdout": [{
+            "vals": [2016,2017],
+            "dim": "season",
+            "prop_to_move": 1.0,
+            "from_groups": ["in_training"]}]
     }
 }
