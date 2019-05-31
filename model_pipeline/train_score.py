@@ -66,15 +66,15 @@ def store_feature_importance(model_dict, library, mdl, set_nbr):
             feature_imp[i] = {'Importance': imp_list[i], 
                               'Feature': feats[i]}
     
-    imp = pd.DataFrame.from_dict(
-                feature_imp, orient='index'
-            ).sort_values(
-                by='Importance', ascending=False
-            ).to_csv(
-                'stats/reported/importance_{}.csv'
-                   .format(set_nbr),
-                index=False
-            )
+    # imp = pd.DataFrame.from_dict(
+    #             feature_imp, orient='index'
+    #         ).sort_values(
+    #             by='Importance', ascending=False
+    #         ).to_csv(
+    #             'stats/reported/importance_{}.csv'
+    #                .format(set_nbr),
+    #             index=False
+    #         )
 
 def check_bad_values(df):
     err_strs = []
@@ -121,6 +121,7 @@ def cv_train(model_dict, training, scoring_only, model_obj):
         'score': scoring_only_df
     }
     
+    _, library = get_model_obj(model_dict) 
     feats = sorted(model_dict['features_list'])
     for set_nbr, set_data in training_scoring_dict.iteritems():
         if set_data['train'].shape[0] > 0:
@@ -204,34 +205,34 @@ def store_models(library, training_scoring_dict):
 training = pd.read_csv('cv_data/training.csv')
 scoring_only = pd.read_csv('cv_data/scoring_only.csv')
 
-if not os.path.exists('serialized_models'): 
-    os.mkdir('serialized_models')
-if not os.path.exists('scores'): 
-    os.mkdir('scores')
-if not os.path.exists('stats'): 
-    os.mkdir('stats')
-    os.mkdir('stats/reported')
+# if not os.path.exists('serialized_models'): 
+#     os.mkdir('serialized_models')
+# if not os.path.exists('scores'): 
+#     os.mkdir('scores')
+# if not os.path.exists('stats'): 
+#     os.mkdir('stats')
+#     os.mkdir('stats/reported')
 
 ## as opposed to spark:
 model_obj, library = get_model_obj(model_dict)
 ## in memory is faster when possible
 ## spark can train/score on larger data when needed
-if library in ['sklearn','xgboost']:
-    training_scoring_dict = cv_train(model_dict, training, 
-                                     scoring_only, model_obj)
+# if library in ['sklearn','xgboost']:
+#     training_scoring_dict = cv_train(model_dict, training, 
+#                                      scoring_only, model_obj)
 
-    store_models(library, training_scoring_dict)
+#     store_models(library, training_scoring_dict)
 
-    scores_df = cv_score(model_dict, training_scoring_dict)
-    scores_df[['label','score']].to_csv('scores/reported_scores.csv')
+#     scores_df = cv_score(model_dict, training_scoring_dict)
+#     scores_df[['label','score']].to_csv('scores/reported_scores.csv')
     
-    if model_dict['holdout_set']['score_using_full_model']:
-        holdout = pd.read_csv('cv_data/holdout.csv')
-        holdout = score_holdout_set(model_dict, training_scoring_dict, 
-                                    holdout)
-        holdout[['label','score']].to_csv('scores/holdout_scores.csv')
+#     if model_dict['holdout_set']['score_using_full_model']:
+#         holdout = pd.read_csv('cv_data/holdout.csv')
+#         holdout = score_holdout_set(model_dict, training_scoring_dict, 
+#                                     holdout)
+#         holdout[['label','score']].to_csv('scores/holdout_scores.csv')
 
-        print 'successfully completed training/scoring.'
-else:
-    print 'Spark ML model training/scoring not supported yet. Exiting.'
-    sys.exit(1)
+#         print 'successfully completed training/scoring.'
+# else:
+#     print 'Spark ML model training/scoring not supported yet. Exiting.'
+#     sys.exit(1)
