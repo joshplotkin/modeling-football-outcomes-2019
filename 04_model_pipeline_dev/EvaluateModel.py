@@ -115,7 +115,6 @@ class EvaluationData:
             bins_out.to_csv(f'{stats_dir}/distributions__{nbins}_{bin_type}.csv')
         return bins_out
 
-
     def get_roc_sets(self):
         if 'fold' in self.scores_df.columns:
             return {
@@ -307,7 +306,6 @@ class EvaluateAndPlot(EvaluationData):
                 # plot trend
                 if bin_type == 'Percentile':
                     self.bin_trend_viz(bins_df, bin_type, nbins)
-
 
     def bin_viz(self, df, bin_type, nbins):
         '''given a pandas DF of bins, plot the bins

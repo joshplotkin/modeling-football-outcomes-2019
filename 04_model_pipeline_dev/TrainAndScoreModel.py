@@ -5,8 +5,9 @@ import os
 class TrainAndScoreModel:
     def __init__(self, model_dict):
         self.model_dict = model_dict
+        self.create_model_object()
 
-    def init_model(self):
+    def create_model_object(self):
         """using the string version of model
         e.g. xgboost.XGBClassifier, load that
         object leveraging importlib library"""
