@@ -53,20 +53,20 @@
         "weather___wind_chill", 
         "weather___wind_mph"
     ], 
-    "kfold_seed": 99, 
+    "fold_seed": null,
     "kfolds": 5, 
     "global_dataset_proportions": {
-        "in_training": 1.0,
-        "holdout": 0, 
+        "in_training": 0.8,
+        "holdout": 0.2,
         "throw_away": 0, 
         "scoring_only": 0
     }, 
     "strata_cols": [
-        "did_cover_sbr", 
+        "did_win",
         "week_id",
         "season"
     ], 
-    "dataset_seed": 9, 
+    "dataset_seed": null,
     "model": "xgboost.XGBClassifier", 
     "dimensional_dataset_proportions": {
         "throw_away": [
@@ -95,7 +95,7 @@
         "holdout": [{
             "vals": [2016,2017],
             "dim": "season",
-            "prop_to_move": 1.0,
+            "prop_to_move": 0.8,
             "from_groups": ["in_training"]}]
     }
 }
