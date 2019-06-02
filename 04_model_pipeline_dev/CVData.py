@@ -1,7 +1,6 @@
+from collections import OrderedDict
 import numpy as np
-import pyspark.sql.functions as F
-from pyspark.sql.functions import col
-from pyspark.sql.window import Window
+import pandas as pd
 
 class CVData:
     def __init__(self, model_dict, spark):
@@ -10,29 +9,30 @@ class CVData:
 
     def generate_cv_data(self):
         cv_data = self.get_cv_data()
-        global_rolling = self.prop_dict_rolling(self.model_dict['global_dataset_proportions'])
-        datasets = self.assign_group(cv_data, global_rolling, 'dataset')
+        # global_rolling = self.prop_dict_rolling('dataset')
+        # datasets = self.assign_group(cv_data, global_rolling, 'dataset')
+        datasets = self.assign_group(cv_data, 'dataset')
         datasets = self.modify_group_for_dim(datasets, 'dataset')
 
         # assert (1) training set is not empty
         # (2) either k-fold or scoring set is not empty
-        assert datasets.filter(col('dataset') == 'in_training').count() > 0
-        if self.model_dict['kfolds'] <= 1:
-            assert datasets.filter(col('dataset') == 'scoring_only').count() > 0
+        assert datasets[datasets['dataset'] == 'in_training'].shape[0] > 0
 
-        training_rows = datasets.filter(col('dataset') == 'in_training')
-        scoring_rows = datasets.filter(col('dataset').isin(['scoring_only','holdout']))
+        training_rows = datasets[datasets['dataset'] == 'in_training']
+        scoring_rows = datasets[datasets['dataset'].isin(['scoring_only','holdout'])]
 
         training_rows = self.assign_k_folds(training_rows)
         training, scoring_only = self.get_training_scoring_sets(training_rows, scoring_rows)
 
         self.training = training
-        self.scoring_only = scoring_only\
-                                .filter(col('dataset') == 'scoring_only')\
-                                .drop('dataset')
-        self.holdout = scoring_only\
-                                .filter(col('dataset') == 'holdout')\
-                                .drop('dataset')
+
+        self.scoring_only = scoring_only[
+            scoring_only['dataset'] == 'scoring_only'
+        ].drop('dataset', axis=1)
+
+        self.holdout = scoring_only[
+            scoring_only['dataset'] == 'holdout'
+        ].drop('dataset', axis=1)
 
     def write_data(self, training, scoring_only, holdout, write_dir):
         training.to_csv(f'{write_dir}/training.csv', index=False)
@@ -53,77 +53,76 @@ class CVData:
         """using model dict, add random seeds,
         make labels in [0,1], and return only
         relevant columns"""
+        def binarize_label(x):
+            if x in self.model_dict['pos_labels']:
+                return 1
+            elif x in self.model_dict['neg_labels']:
+                return 0
+            return None
+
         model_dict = self.model_dict
-        labels_prep = self.spark.table(model_dict['labels_tbl']).select(
-            *(set(model_dict['index'])
-              | set(model_dict['strata_cols'])
-              | set([model_dict['label_col']]))
-        )
+        label_cols = set(model_dict['index'])\
+                     | set(model_dict['strata_cols'])\
+                     | set([model_dict['label_col']])
+        labels_prep = pd.read_csv('data/{}/{}.csv'
+                                  .format(*model_dict['labels_tbl'].split('.')))\
+                        .loc[:, label_cols]
 
-        return labels_prep.withColumn(
-            'dataset_rnd', F.rand(model_dict['dataset_seed'])
-        ).withColumn(
-            'dim_rnd', F.rand(model_dict['dataset_seed'])
-        ).withColumn(
-            'kfold_rnd', F.rand(model_dict['kfold_seed'])
-        ).withColumn(
-            'label',
-            F.when(
-                col(model_dict['label_col']).isin(model_dict['pos_labels']),
-                1
-            ).when(
-                col(model_dict['label_col']).isin(model_dict['neg_labels']),
-                0
-            ).otherwise(None)
-        ).filter(
-            col('label').isNotNull()
-        )
+        nrows = labels_prep.shape[0]
 
-    def prop_dict_rolling(self, d):
+        np.random.seed(model_dict['dataset_seed'])
+        labels_prep['dataset_rnd'] = np.random.random(nrows)
+        labels_prep['dim_rnd'] = np.random.random(nrows)
+
+        np.random.seed(model_dict['fold_seed'])
+        labels_prep['fold_rnd'] = np.random.random(nrows)
+
+        np.random.seed(None)
+        labels_prep['label'] = labels_prep[model_dict['label_col']].map(binarize_label)
+
+        return labels_prep[~labels_prep['label'].isnull()]
+
+    def prop_dict_rolling(self, colname, props=None):
         """given a dictionary of probabilities, where
         the values are floats that sum to 1,
         return a dictionary with the same keys, where
         the values are disjoint windows.
         usage note: top is inclusive. bottom is exclusive unless 0.
-        usage note: if both elements are the same, skip"""
+        usage note: if both elements are the same, skip
+        note: this chooses a random order"""
+        if type(props) is type(None):
+            props = self.model_dict['global_dataset_proportions']
         rolling_sum = 0
-        rolling = {}
-        for k, v in d.items():
+        rolling = OrderedDict()
+
+        shuffled_keys = list(props.keys())
+        np.random.seed(self.model_dict[f'{colname}_seed'])
+        np.random.shuffle(shuffled_keys)
+        np.random.seed(None)
+
+        for k in shuffled_keys:
+            v = props[k]
             rolling[k] = (rolling_sum, rolling_sum + v)
             rolling_sum += v
         return rolling
 
-    def assign_group(self, df, d, colname):
-        """given (1) a dictionary of ranges,
-        (2) a DF with random values ranked
-        by random block, and
-        (3) a name for the grouped columns,
-        return DF with a new column that
-        assigns group membership"""
-        strata_cols = self.model_dict['strata_cols']
-        window = Window.orderBy('dataset_rnd') \
-            .partitionBy(*self.model_dict['strata_cols'])
-        df = df.withColumn('dataset_rk',
-                           F.percent_rank().over(window))
-        for i, (k, v) in enumerate(d.items()):
-            ## if the bottom is 0, make it -1 to include 0
-            min_val = -1 if v[0] == 0 else min_val
-            if type(k) is np.int64:
-                k = int(k)
-            if i == 0:
-                group_assign_cond = F.when(
-                    (col('dataset_rk') > min_val)
-                    & (col('dataset_rk') <= v[1]),
-                    F.lit(k)
-                )
+    def assign_group(self, df, colname):
+        def assign_value(x, colname):
+            if colname == 'dataset':
+                rnd_range_mapping = self.prop_dict_rolling(colname)
             else:
-                group_assign_cond = group_assign_cond.when(
-                    (col('dataset_rk') > min_val)
-                    & (col('dataset_rk') <= v[1]),
-                    F.lit(k)
-                )
+                kfolds = self.model_dict['kfolds']
+                folds_dict = {k: 1. / kfolds for k in np.arange(kfolds)}
+                rnd_range_mapping = self.prop_dict_rolling('fold', folds_dict)
+            for i, (k, v) in enumerate(rnd_range_mapping.items()):
+                if v[0] < x <= v[1]:
+                    return k
 
-        return df.withColumn(colname, group_assign_cond)
+        df['pct'] = df.groupby(self.model_dict['strata_cols']) \
+                        [f'{colname}_rnd'] \
+                        .rank(pct=True)
+        df[colname] = df['pct'].apply(lambda x: assign_value(x, colname))
+        return df
 
     def modify_group_for_dim(self, df, colname):
         """given a DF with a groups assigned (variable colname),
@@ -134,71 +133,58 @@ class CVData:
         """
         dim_props = self.model_dict['dimensional_dataset_proportions'].items()
         for grp, grp_dict_list in dim_props:
-            for grp_dict in grp_dict_list:
-                window = Window.orderBy('dim_rnd') \
-                    .partitionBy(grp_dict['dim'], colname)
-                df = df.withColumn('dim_rk', F.percent_rank().over(window))
+            for grp_dict in filter(lambda x: x.get('prop_to_move', 0) > 0, grp_dict_list):
+                condition1 = df[colname].isin(grp_dict['from_groups'])
+                condition2 = df[grp_dict['dim']].isin(grp_dict['vals'])
 
-                ## if (1) the column is within the set values,
-                ## (2) the pre-existing group falls within those set values, and
-                ## (3) the random value is below the set threshold,
-                ## then override and modify the group membership
-                if grp_dict['prop_to_move'] > 0:
-                    df = df.withColumn(
-                        colname,
-                        F.when(
-                            (col(grp_dict['dim']).isin(grp_dict['vals']))
-                            & (col(colname).isin(grp_dict['from_groups']))
-                            & (col('dim_rk') >= 1 - grp_dict['prop_to_move']),
-                            grp
-                        ).otherwise(col(colname))
-                    )
+                idx = df[(condition1) & (condition2)].index
+                df.loc[:, 'pct'] = 99
+                df.loc[idx, 'pct'] = df.loc[idx, 'dim_rnd'].rank(pct=True)
+                mod_idx = df[df['pct'] <= grp_dict['prop_to_move']].index
+                df.loc[mod_idx, colname].value_counts()
+                df.loc[mod_idx, colname] = grp
+                df.loc[mod_idx, colname].value_counts()
         return df
 
     def assign_k_folds(self, training_rows):
-        '''given model dict and pandas DF
+        """given model dict and pandas DF
         of training data, assign K folds
-        using stratified sampling
-        '''
-        ## assign K folds
-        kfolds = self.model_dict['kfolds']
-        if kfolds > 1:
+        using stratified sampling"""
+        if self.model_dict['kfolds'] > 1:
             ## make a mapping from fold --> range of random numbers
             ## e.g. fold 0 --> [0.6, 0.8]
-            folds_dict = {k: 1. / kfolds for k in np.arange(kfolds)}
-            folds_rolling = self.prop_dict_rolling(folds_dict)
-            ## apply mapping
             training_rows = self.assign_group(
-                training_rows, folds_rolling, 'fold'
+                training_rows, 'fold'
             )
         else:
             ## if kfold == 1, then skip k-fold.
             ## 1 model will be trained using all data in training dataset.
             ## scoring dataset will be scored with that model.
-            training_rows = training_rows.withColumn('fold', F.lit(None))
+            training_rows['fold'] = 0
 
         return training_rows
 
     def get_training_scoring_sets(self, training_rows, scoring_rows):
-        '''given model dict and pandas DF of the rows
+        """given model dict and pandas DF of the rows
         to be used for training, and the folds,
-        return 2 pandas DFs: prepped training and scoring sets'''
+        return 2 pandas DFs: prepped training and scoring sets"""
         index = self.model_dict['index']
-        features_prep = self.spark.table(self.model_dict['features_tbl']).select(
-            *(set(self.model_dict['features_list'])
-              | set(index))
-        )
 
-        training = features_prep.join(
-            training_rows.select(*(index + ['label', 'fold', 'season', 'week_id'])),
+        features_prep = pd.read_csv(
+            'data/{}/{}.csv'.format(*self.model_dict['features_tbl'].split('.'))
+        )[set(self.model_dict['features_list']) | set(index)]
+
+
+        training = features_prep.merge(
+            training_rows[index + ['label', 'fold', 'season', 'week_id']],
             on=index
         )
-        scoring_only = features_prep.join(
-            scoring_rows.select(*(index + ['label','dataset', 'season', 'week_id'])),
+        scoring_only = features_prep.merge(
+            scoring_rows[index + ['label','dataset', 'season', 'week_id']],
             on=index
         )
 
-        assert training.count() == training_rows.count()
-        assert scoring_only.count() == scoring_rows.count()
+        assert training.shape[0] == training_rows.shape[0]
+        assert scoring_only.shape[0] == scoring_rows.shape[0]
 
         return (training, scoring_only)
