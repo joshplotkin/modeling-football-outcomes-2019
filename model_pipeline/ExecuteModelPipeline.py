@@ -75,7 +75,10 @@ class ExecuteModelPipeline:
             plot = EvaluateAndPlot(
                 self.evaluation_dict, self.cv_scores, self.is_classification
             )
-            plot.plot_all(self.model_dict, self.cv_scores, self.model_objects)
+            plot.plot_all(
+                self.evaluation_dict.get('to_plot', {}),
+                self.model_dict, self.cv_scores, self.model_objects
+            )
 
     def write_timing_data(self, stopwatch):
         stopwatch.write('{}/{}/time-stats.csv'.format(

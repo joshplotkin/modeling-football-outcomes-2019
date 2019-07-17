@@ -4,6 +4,7 @@
 # TODO: differences between jupyter display and savefig
 # TODO: (above) https://stackoverflow.com/questions/7906365/matplotlib-savefig-plots-different-from-show
 
+from scipy.special import logit
 import sys
 import warnings
 
@@ -35,9 +36,9 @@ class EvaluationData:
         self.scores_df = scores_df
 
         if scores_df['label'].unique().shape[0] > 2:
-            self.is_regression = True
+            self.is_classification = True
         else:
-            self.is_regression = False
+            self.is_classification = False
 
         save_loc = os.path.join(plots_dict['models_dir'], plots_dict['model_id'])
         self.stats_dir = '{}/stats'.format(save_loc)
@@ -159,6 +160,20 @@ class EvaluationData:
                 k: self.scores_df[self.scores_df['fold'] == k][['label', 'score']]
                 for k in self.scores_df['fold'].unique()
             }
+        # this code will get curves for each model in an ensemble
+        # but didn't invest the time yet to have the aggregated curve standout
+        # elif '0_regression_score' in self.scores_df.columns or '0_score' in self.scores_df.columns:
+        #     n_models = self.plots_dict['ensemble_models']
+        #     if '0_regression_score' in self.scores_df.columns:
+        #         scores_cols = [f'{n}_regression_score' for n in range(n_models)]
+        #     elif '0_regression_score' in self.scores_df.columns:
+        #         scores_cols = [f'{n}_regression_score' for n in range(n_models)]
+        #     else:
+        #         'SCORES FIELD NOT FOUND'
+        #     return {
+        #         n: self.scores_df[['label', col]].dropna().rename(columns={col:'score'})
+        #         for n, col in enumerate(scores_cols)
+        #     }
         else:
             return {'Full': self.scores_df}
 
@@ -343,9 +358,11 @@ class EvaluationData:
             importances_df.to_csv(f'{stats_dir}/feature_importances.csv')
 
     def get_shap_vals(self, model_dict, model_objects):
+        scores_df = self.scores_df[~self.scores_df['score'].isnull()]
+        all_rows_are_scored = scores_df.shape[0] == self.scores_df.shape[0]
         for fold in np.arange(model_dict['kfolds']):
             explainer = shap.TreeExplainer(model_objects[fold])
-            features = self.scores_df[self.scores_df['fold'] == fold] \
+            features = scores_df[self.scores_df['fold'] == fold] \
                            .loc[:, model_dict['features_list']]
             shap_values = explainer.shap_values(features)
             shap_fold_df = pd.DataFrame.from_dict(
@@ -360,14 +377,19 @@ class EvaluationData:
             else:
                 shap_df = shap_df.append(shap_fold_df)
 
-        # check that the sum of shap values + bias equals model prediction
-        tmp = features[[]].merge(shap_df, left_index=True, right_index=True).sum(axis=1).to_frame()
-        tmp[1] = model_objects[fold].predict(features)
-        assert ((tmp[0] - tmp[1]).abs() > 1e-4).sum() == 0
+            # check that the sum of shap values + bias equals model prediction
+            tmp = features[[]].merge(shap_df, left_index=True, right_index=True).sum(axis=1).to_frame()
+            # features_for_assertion = features.merge(shap_df[[]], left_index=True, right_index=True)
+            if self.is_classification:
+                tmp[1] = list(map(logit, model_objects[fold].predict_proba(features)[:, 1]))
+                assert ((tmp[0] - tmp[1]).abs() > 1e-4).sum() == 0
+            else:
+                tmp[1] = model_objects[fold].predict(features)
+                assert ((tmp[0] - tmp[1]).abs() > 1e-4).sum() == 0
 
-        before = shap_df.shape[0]
-        shap_df = self.scores_df[[]].merge(shap_df, left_index=True, right_index=True)
-        assert shap_df.shape[0] == before
+            before = shap_df.shape[0]
+            shap_df = self.scores_df[[]].merge(shap_df, left_index=True, right_index=True)
+            assert shap_df.shape[0] == before
 
         if self.plots_dict['save']['data'] is True:
             stats_dir = self.stats_dir
@@ -385,7 +407,9 @@ class EvaluateAndPlot(EvaluationData):
         if self.is_classification is False:
             self.add_regression_to_classification_data()
 
-        save_loc = os.path.join(plots_dict['models_dir'], plots_dict['model_id'])
+        print(plots_dict['models_dir'])
+        print(plots_dict['model_id'])
+        save_loc = '{}/{}'.format(plots_dict['models_dir'], plots_dict['model_id'])
         self.plots_dir = '{}/plots'.format(save_loc)
         if not os.path.exists(self.plots_dir):
             os.mkdir(self.plots_dir)
@@ -393,27 +417,40 @@ class EvaluateAndPlot(EvaluationData):
         if not os.path.exists(self.stats_dir):
             os.mkdir(self.stats_dir)
 
-    def plot_all(self, model_dict=None, features_df=None, model_objects=None):
-        self.plot_ridge()
-        self.plot_thresholds()
-        self.plot_bins()
-        self.plot_roc()
-        self.plot_accuracy_by_topn()
+    def plot_all(self, plot_execution_dict, model_dict=None, features_df=None, model_objects=None):
+        if plot_execution_dict.get('ridge', None):
+            self.plot_ridge()
+        if plot_execution_dict.get('thresholds', None):
+            self.plot_thresholds()
+        if plot_execution_dict.get('bins', None):
+            self.plot_bins()
+        if plot_execution_dict.get('roc', None):
+            self.plot_roc()
+        if plot_execution_dict.get('accuracy_by_top_n', None):
+            self.plot_accuracy_by_topn()
 
         if self.is_classification is False:
-            self.plot_distributions()
-            self.plot_scatter()
-            self.plot_residuals_by_season_week_all()
-            self.plot_confusion_matrix()
+            if plot_execution_dict.get('regression__distributions', None):
+                self.plot_distributions()
+            if plot_execution_dict.get('regression__scatter', None):
+                self.plot_scatter()
+            if plot_execution_dict.get('regression__residuals_by_season_week', None):
+                self.plot_residuals_by_season_week_all()
+            if plot_execution_dict.get('regression__confusion_matrix', None):
+                self.plot_confusion_matrix()
 
         # all 3 must be defined to run shap plots
-        if type(None) not in [type(model_dict), type(model_objects), type(features_df)]:
+        # all 3 must be defined to run shap plots
+        if type(None) not in [type(model_dict), type(features_df), type(model_objects)]:
             shap_df = self.get_shap_vals(model_dict, model_objects)
-            self.plot_shap_feature_importance(model_dict, features_df, model_objects, shap_df)
-            self.plot_shap_dependence(model_dict, features_df, model_objects, shap_df)
+            if plot_execution_dict.get('shap__feature_importance', None):
+                self.plot_shap_feature_importance(model_dict, features_df, model_objects, shap_df)
+            if plot_execution_dict.get('shap__dependence_plots', None):
+                self.plot_shap_dependence(model_dict, features_df, model_objects, shap_df)
 
         if type(model_objects['full']) is not type(None):
-            self.plot_feature_importances(model_objects['full'])
+            if plot_execution_dict.get('feature_importance', None):
+                self.plot_feature_importances(model_objects['full'])
 
     def plot_ridge(self):
         self.ridge_viz(self.get_ridge_data())

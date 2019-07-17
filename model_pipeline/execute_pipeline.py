@@ -1,5 +1,8 @@
 # TODO: CleanseDataTODO.py
 # TODO later: perform independent tasks like evaluation on an existing directory
+# TODO: fix plots... things that don't look good; also with large number of folds, no need for so many ROC curves
+# TODO: if number of folds > some number (50?), do LOO and make each row a fold
+#
 
 import argparse
 

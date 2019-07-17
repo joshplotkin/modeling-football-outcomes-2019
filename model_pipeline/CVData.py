@@ -6,7 +6,6 @@ import os
 import pandas as pd
 import sys
 
-# TODO: if number of folds > some number (50?), do LOO and make each row a fold
 
 class CVData:
     def __init__(self, model_dict):
@@ -25,8 +24,7 @@ class CVData:
             assert datasets[datasets['dataset'] == 'training'].shape[0] > 0
 
             training_rows = datasets[datasets['dataset'] == 'training']
-            scoring_rows = datasets[datasets['dataset'].isin(['scoring_only','holdout'])]\
-                                .drop('fold_rnd', axis=1)
+            scoring_rows = datasets[datasets['dataset'].isin(['scoring_only','holdout'])]
             training_rows_w_folds = self.assign_group(training_rows, 'fold')
             training, scoring_only = self.get_training_scoring_sets(training_rows_w_folds, scoring_rows)
 
@@ -37,6 +35,9 @@ class CVData:
             self.is_classification = True
         else:
             self.is_classification = False
+
+        training = training.drop('fold_rnd', axis=1)
+        scoring_only = scoring_only.drop('fold_rnd', axis=1)
 
         return self.get_and_store_variables(training, scoring_only)
 
@@ -65,6 +66,7 @@ class CVData:
             ].drop('dataset', axis=1)
 
             if self.model_dict['save']['cv_data']:
+                print('SAVE CV DATA')
                 self.write_data(self.training, self.scoring_only, self.holdout)
 
             return {'training': self.training,

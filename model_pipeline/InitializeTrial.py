@@ -27,8 +27,11 @@ class InitializeTrial:
         model_json = json.load(open(model_config, 'r'))
         check_path_exists(model_json['models_dir'])
 
-        if os.path.exists(eval_config):
-            eval_json = json.load(open(eval_config, 'r'))
+        if eval_config:
+            if os.path.exists(eval_config):
+                eval_json = json.load(open(eval_config, 'r'))
+            else:
+                eval_json = None
         else:
             eval_json = None
 

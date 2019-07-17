@@ -131,7 +131,7 @@ def validate_model_json(model_dict):
                 'do_evaluate'}
     set([type(a) for a in model_dict['actions'].values()]) == {bool}
 
-    print(f'Model JSON configuration files passed checks.')
+    #print(f'Model JSON configuration files passed checks.')
 
 def validate_eval_json(model_dict, plots_dict):
     assert type(plots_dict['label_map']) is dict
@@ -169,4 +169,4 @@ def validate_eval_json(model_dict, plots_dict):
     for _, v in plots_dict['accuracy_at_topn'].items():
         assert type(v) is list
 
-    print(f'Eval dict configuration files passed checks.')
+    #print(f'Eval dict configuration files passed checks.')
