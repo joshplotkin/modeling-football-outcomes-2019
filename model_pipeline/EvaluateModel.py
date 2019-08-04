@@ -407,14 +407,12 @@ class EvaluateAndPlot(EvaluationData):
         if self.is_classification is False:
             self.add_regression_to_classification_data()
 
-        print(plots_dict['models_dir'])
-        print(plots_dict['model_id'])
         save_loc = '{}/{}'.format(plots_dict['models_dir'], plots_dict['model_id'])
         self.plots_dir = '{}/plots'.format(save_loc)
-        if not os.path.exists(self.plots_dir):
+        if not os.path.exists(self.plots_dir) and self.plots_dict['save'].get('plots', False):
             os.mkdir(self.plots_dir)
         self.stats_dir = '{}/stats'.format(save_loc)
-        if not os.path.exists(self.stats_dir):
+        if not os.path.exists(self.stats_dir) and self.plots_dict['save'].get('data', False):
             os.mkdir(self.stats_dir)
 
     def plot_all(self, plot_execution_dict, model_dict=None, features_df=None, model_objects=None):
@@ -448,9 +446,10 @@ class EvaluateAndPlot(EvaluationData):
             if plot_execution_dict.get('shap__dependence_plots', None):
                 self.plot_shap_dependence(model_dict, features_df, model_objects, shap_df)
 
-        if type(model_objects['full']) is not type(None):
-            if plot_execution_dict.get('feature_importance', None):
-                self.plot_feature_importances(model_objects['full'])
+        if type(model_objects) is not type(None):
+            if type(model_objects['full']) is not type(None):
+                if plot_execution_dict.get('feature_importance', None):
+                    self.plot_feature_importances(model_objects['full'])
 
     def plot_ridge(self):
         self.ridge_viz(self.get_ridge_data())
