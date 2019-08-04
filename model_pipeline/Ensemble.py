@@ -57,7 +57,7 @@ class Ensemble:
         eval_dict = json.load(open(self.config['evaluation_config']))
         eval_dict['model_id'] = model_id
         eval_dict['ensemble_models'] = self.config['number_of_models']
-        eval_dict['save']['plots'] = True
+        # eval_dict['save']['plots'] = True
 
         json.dump(
             eval_dict,
@@ -98,11 +98,21 @@ class Ensemble:
         for model_nbr in np.arange(self.config['number_of_models']):
             self.execute_submodel(model_nbr)
 
+    def get_submodel_path(self):
+        model_path = os.path.join(self.config['models_dir'],
+                                  self.config['ensemble_model_id'])
+        for d in os.listdir(model_path):
+            try:
+                int(d)
+                return os.path.join(model_path, d)
+            except:
+                pass
+        print('No submodel found! Exiting...')
+        sys.exit(1)
+
     def get_labels_tbl(self):
-        if type(self.config['source']) is str:
-            return json.load(open(self.config['source'],'r'))['labels_tbl']
-        elif type(self.config['source']) is list:
-            return json.load(open(self.config['source'][0],'r'))['labels_tbl']
+        submodel_path = self.get_submodel_path()
+        return json.load(open(os.path.join(submodel_path, 'model.json'), 'r'))['labels_tbl']
 
     def get_labels_df(self):
         return pd.read_csv(
@@ -131,6 +141,8 @@ class Ensemble:
         return self.scores_tbl_labels_cols_renamed(scores, model_nbr)
 
     def load_and_prepare_scores(self, model_path, model_dict, model_nbr):
+        print(os.path.join(model_path, 'scores/cv_scores.csv'))
+
         scores = pd.read_csv(os.path.join(model_path, 'scores/cv_scores.csv'))
         scores = self.scores_only_index_label_or_scores_cols(scores, model_dict)
         return self.scores_tbl_columns_renamed(scores, model_nbr)
