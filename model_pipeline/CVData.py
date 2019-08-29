@@ -36,8 +36,9 @@ class CVData:
         else:
             self.is_classification = False
 
-        training = training.drop('fold_rnd', axis=1)
-        scoring_only = scoring_only.drop('fold_rnd', axis=1)
+
+        training = training[[c for c in training.columns if c != 'fold_rnd']]
+        scoring_only = scoring_only[[c for c in scoring_only.columns if c != 'fold_rnd']]
 
         return self.get_and_store_variables(training, scoring_only)
 
@@ -66,7 +67,6 @@ class CVData:
             ].drop('dataset', axis=1)
 
             if self.model_dict['save']['cv_data']:
-                print('SAVE CV DATA')
                 self.write_data(self.training, self.scoring_only, self.holdout)
 
             return {'training': self.training,
