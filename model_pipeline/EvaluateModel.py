@@ -359,7 +359,6 @@ class EvaluationData:
 
     def get_shap_vals(self, model_dict, model_objects):
         scores_df = self.scores_df[~self.scores_df['score'].isnull()]
-        all_rows_are_scored = scores_df.shape[0] == self.scores_df.shape[0]
         for fold in np.arange(model_dict['kfolds']):
             explainer = shap.TreeExplainer(model_objects[fold])
             features = scores_df[self.scores_df['fold'] == fold] \
@@ -438,7 +437,6 @@ class EvaluateAndPlot(EvaluationData):
                 self.plot_confusion_matrix()
 
         # all 3 must be defined to run shap plots
-        # all 3 must be defined to run shap plots
         if type(None) not in [type(model_dict), type(features_df), type(model_objects)]:
             shap_df = self.get_shap_vals(model_dict, model_objects)
             if plot_execution_dict.get('shap__feature_importance', None):
@@ -482,7 +480,7 @@ class EvaluateAndPlot(EvaluationData):
         # add nice distribution label on the left
         def label(x, color, label):
             ax = plt.gca()
-            ax.text(-0.2, .2, label, fontweight='bold', color=color,
+            ax.text(-0.3, .2, label, fontweight='bold', color=color,
                     ha='left', va='center', transform=ax.transAxes)
 
         g.map(label, 'Score')
