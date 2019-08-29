@@ -16,31 +16,38 @@ rcParams['figure.figsize'] = (12,8)
 
 class ExecuteModelPipeline:
     def __init__(self, model_config, eval_config, overwrite='N'):
-        stopwatch = Stopwatch()
-        self.initialize_and_get_jsons(model_config, eval_config, overwrite)
-        stopwatch.add('initialized and loaded JSON file(s)')
+        self.model_config = model_config
+        self.eval_config = eval_config
+        self.overwrite = overwrite
+        self.stopwatch = Stopwatch()
+
+    def execute_model_pipeline(self):
+        self.initialize_and_get_jsons()
+        self.stopwatch.add('initialized and loaded JSON file(s)')
         self.validate_jsons()
-        stopwatch.add('loaded and validated')
+        self.stopwatch.add('loaded and validated')
         self.generate_or_fetch_cv_data()
-        stopwatch.add('generated or fetched CV sets')
+        self.stopwatch.add('generated or fetched CV sets')
 
         if self.model_dict['actions']['do_train_and_score_cv']:
             self.train_and_score_cv()
-            stopwatch.add('trained and scored')
+            self.stopwatch.add('trained and scored')
 
             if self.model_dict['actions']['do_evaluate']:
                 self.evaluate_model()
-                stopwatch.add('evaluated model')
+                self.stopwatch.add('evaluated model')
 
             else:
-                print('per model.json, skipping model evaluation...')
+                pass
+                # print('per model.json, skipping model evaluation...')
         else:
-            print('per model.json, skipping model training, scoring, and evaluation')
+            pass
+            # print('per model.json, skipping model training, scoring, and evaluation')
 
-        self.write_timing_data(stopwatch)
+        self.write_timing_data()
 
-    def initialize_and_get_jsons(self, model_config, eval_config, overwrite):
-        configs = InitializeTrial(model_config, eval_config, overwrite)
+    def initialize_and_get_jsons(self):
+        configs = InitializeTrial(self.model_config, self.eval_config, self.overwrite)
         self.model_dict = configs.model_dict
         self.evaluation_dict = configs.evaluation_dict
 
@@ -75,13 +82,14 @@ class ExecuteModelPipeline:
             plot = EvaluateAndPlot(
                 self.evaluation_dict, self.cv_scores, self.is_classification
             )
+            print(self.evaluation_dict.get('to_plot', {}))
             plot.plot_all(
                 self.evaluation_dict.get('to_plot', {}),
                 self.model_dict, self.cv_scores, self.model_objects
             )
 
-    def write_timing_data(self, stopwatch):
-        stopwatch.write('{}/{}/time-stats.csv'.format(
+    def write_timing_data(self):
+        self.stopwatch.write('{}/{}/time-stats.csv'.format(
             self.model_dict['models_dir'],
             self.model_dict['model_id'])
         )
