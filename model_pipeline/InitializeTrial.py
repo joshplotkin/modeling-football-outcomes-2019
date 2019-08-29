@@ -58,7 +58,6 @@ class InitializeTrial:
     def setup_trial_dir(self, overwrite, trial_path):
         overwrite = True if overwrite.upper()[0] == 'Y' else False
 
-        print('Model Path:\n{}'.format(trial_path))
         if (overwrite is False) & (os.path.exists(trial_path)):
             print('model path already exists and user input disallows overwriting. exiting...')
             sys.exit(1)
