@@ -1,3 +1,0 @@
-run_hyperparam_tuning.sh: line 6: /Users/joshplotkin/Dropbox/data_science/modeling-football-outcomes/models/id/out: No such file or directory
-mkdir: /Users/joshplotkin/Dropbox/data_science/modeling-football-outcomes/models/id: File exists
-/Users/joshplotkin/Dropbox/data_science/modeling-football-outcomes/models/id
