@@ -1,6 +1,7 @@
 {
-    "model_id": "0619_test_b",
-    "models_dir": "/Users/joshplotkin/Dropbox/data_science/modeling-football-outcomes//models",
+    "model_id": "2019-08-29",
+    "models_dir": "models",
+    "regression_evaluation": {},
     "label_map": {
         "1": "Won",
         "0": "Lost"
@@ -29,13 +30,18 @@
             2
         ]
     },
-    "regression_evaluation": {
-        "comparison": 0,
-        "label": "did_win",
-        "round_score": false
+    "to_plot": {
+        "ridge": true,
+        "thresholds": true,
+        "bins": true,
+        "roc": true,
+        "accuracy_by_top_n": true,
+        "shap__feature_importance": true,
+        "shap__dependence_plots": false,
+        "feature_importance": true
     },
     "save": {
         "plots": false,
-        "data": true
+        "data": false
     }
 }
