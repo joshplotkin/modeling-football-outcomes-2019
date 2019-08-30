@@ -1,66 +1,277 @@
-### Work completed
-* 00_source_data
-  * sourced first iteration of data from around 10 sources. (scrubbed website names)
-  * identified potential future sources.
-* 01_create_hive_data_model
-  * QA'ed, cleaned, enriched, and did initial exploration of the data.
-  * created a star schema and wrote to Hive tables, to be queried by Spark.
-    * Spark isn't necessary for this data but the DataFrames API is great, and it makes the code scalable. the same code can run on a Spark cluster to handle more data.
-* 02_exploration & 03_labels
-  * initial data exploration and visualization. 
-  * prepared labels and wrote to Hive tables.
-* model_pipeline/ and 04_model_pipeline_dev.
-  * developed model train/score/evaluate/visualize pipeline with model repository, for rapid feedback when engineering features and improving the model.
-    * python and bash execution files in model_pipeline directory.
-    * execution driven through 2 JSON configuration files. place them in directory models/{MODEL_ID} and run: model_pipeline/model_pipeline.sh {MODEL_ID}
-    * core ideas developed with Pivotal teammate, Tim Kopp. learned many great ideas from Tim, like incorporating model choice into model config using importlib, the directory structure, using directories as a model repository, notebook to generate JSON, among many others. code is my own.
-* model_pipeline/generate_configs_execute.ipynb
-  * notebook to generate JSON configuration files.
-  * thoroughly tested pipeline.
-* 05_feature engineering
-  * feature engineering performed across a series of notebooks.
-* next steps
-  * continued feature engineering.
-  * model selection.
-  * model evaluation and "where did we miss?"
-  * model explainability and feature contribution.
-* backlog
-  * model pipeline test cases.
-  * regression model support.
-  * continuous stratified sampling columns (using binning).
-  * Spark ML support for pipeline.
-  * additional data (more below).
-  * pipeline to ingest incremental data.
+## What is this repo?
+* A friend asked me, "do you think you could make a model to predict NFL outcomes?" It sounded like a fun challenge, so I'm giving it a try in my limited free time.
+  * Scraped 12 years of NFL outcomes and stats from 10 sources (notebooks/00_source_data, however I scrubbed any URLs).
+  * Combined all data sources into a unified schema, as visualized below (notebooks/01_create_hive_data_model).
+  * EDA with pySpark and pandas (notebooks/{02_exploration, 03_labels}).
+  * Engineered >100 features with a backlog for more in-depth features (notebooks/05_feature_engineering). 
+* I've gotten nerd sniped and it has also become a project to automate many of the modeling steps I take when developing a Machine Learning model:
+  * All driven from JSON files and executable with the push of a button.
+  * Splitting up the data (cross-validation set vs. holdout set, and dividing cross-validation set into folds). Repeatable via seeds in the JSON config files, with optional stratified sampling.
+  * Model training and scoring, using XGBoost or sklearn (right now only supporting RF and GBT).
+  * Evaluation providing insightful visualizations and metrics for model performance and model explainability (using SHAP).
+  * Ensembling, to reduce variance when model selection. Option to create new cross-validation data based on a model JSON, or to copy data from an existing ensemble (useful for hyper-parameter optimization and feature selection). 
+  * Hyperparameter optimization using the scikit-optimize package (WIP).
+  * _Shoutout to Tim Kopp, whom I worked with closely at Pivotal and devised several methods I use here._
 
-### ER Diagram showing data model 
+## Example Usage
+
+### Model Pipeline Execution
+#### These notebooks walk through creating a JSON
+* [Regression (e.g. labels are margins of victory)](https://nbviewer.jupyter.org/github/joshplotkin/modeling-football-outcomes-2019/blob/master/notebooks/model_execution/generate_config_for_model_and_ensemble_regression.ipynb)
+* [Classification (e.g. labels are game winners)](https://nbviewer.jupyter.org/github/joshplotkin/modeling-football-outcomes-2019/blob/master/notebooks/model_execution/generate_config_for_model_and_ensemble_classification.ipynb)
+#### These notebooks demonstrate executing the pipeline using the JSON files generated in the notebook
+* [Regression](https://nbviewer.jupyter.org/github/joshplotkin/modeling-football-outcomes-2019/blob/master/notebooks/model_execution/run_model_ensemble_from_preexisting_json_regression.ipynb)
+* [Classification](https://nbviewer.jupyter.org/github/joshplotkin/modeling-football-outcomes-2019/blob/master/notebooks/model_execution/run_model_ensemble_from_preexisting_json_classification.ipynb)
+w* TODO: link to nbviewer
+#### Sample Execution (single model)
+```python
+from ExecuteModelPipeline import ExecuteModelPipeline
+model_pipeline = ExecuteModelPipeline(
+    'model_configs/model__regression_example.json', 
+    'model_configs/evaluate__regression_example.json', 
+    overwrite='Y'
+)
+model_pipeline.execute_model_pipeline()
+```
+#### Sample Execution (ensemble)
+```python
+from Ensemble import Ensemble
+ensemble = Ensemble(
+    'model_configs/ensemble_model_new_cv__regression_example.json', 
+    'model_configs/ensemble_evaluate__regression_example.json'
+)
+ensemble.execute_ensemble()
+ensemble.evaluate_ensemble()
+```
+
+#### Sample Pipeline Output (generated automatically by pipeline)
+![Ridge Plot][ridge]
+![Score Thresholds][score_thresh]
+![Score Distributions][score_dist]
+![Percentile Distributions][pctile_dist]
+![ROC Curve][roc]
+![Top N][topn]
+![Predicted vs. Actual][pred_vs_act]
+![Predicted vs. Actual Scatter][pred_vs_act_scatter]
+![Residuals by Season and Week][res_season_week_bars]
+![RMSE By Season and Week][rmse_season_week_heatmap]
+![Residuals Bars][res_bars]
+![Confusion Matrix][confusion_matrix]
+The following plots are generated by the SHAP package:
+![SHAP Importance][shap_importance]
+![SHAP Contributions][shap_contributions]
+
+[ridge]: img/example_model_eval/ridge.png
+[score_thresh]: img/example_model_eval/score_thresholds.png
+[score_dist]: img/example_model_eval/score_distributions.png
+[pctile_dist]: img/example_model_eval/percentile_distributions.png
+[roc]: img/example_model_eval/roc.png
+[topn]: img/example_model_eval/topn.png
+[pred_vs_act]: img/example_model_eval/predicted_vs_actual.png
+[pred_vs_act_scatter]: img/example_model_eval/predicted_vs_actual_scatter.png
+[res_season_week_bars]: img/example_model_eval/residuals_by_season_week.png
+[rmse_season_week_heatmap]: img/example_model_eval/rmse_by_season_week.png
+[res_bars]: img/example_model_eval/residuals_by_season_week_bar.png
+[confusion_matrix]: img/example_model_eval/confusion_matrix.png
+[shap_importance]: img/example_model_eval/shap_imp.png
+[shap_contributions]: img/example_model_eval/shap_contrib2.png
+
+#### Model JSON
+```json
+{'actions': {'do_evaluate': True,
+             'do_score_holdout': False,
+             'do_train_and_score_cv': True},
+ 'dataset_seed': 9,
+ 'dimensional_dataset_proportions': {'holdout': [{'dim': 'season',
+                                                  'from_groups': ['training',
+                                                                  'scoring_only'],
+                                                  'prop_to_move': 1.0,
+                                                  'vals': [2016, 2017]}]},
+ 'features_list': ['home_field___h_consecutive_home',
+                   'home_field___h_home__close_wr_ytd',
+                   'home_field___h_home__ovr_wr_ytd',
+                   'home_field___v_consecutive_visitor',
+                   'home_field___v_visitor__ovr_wr_ytd',
+                   'line___close_ou',
+                   'line___h_close_line',
+                   'line___h_ml',
+                   'line___h_pfr_line',
+                   'line___pfr_ou',
+                   'line___v_ml',
+                   'matchup___h_wr_past_2_seasons',
+                   'matchup___h_wr_past_5_games',
+                   'matchup___h_wr_ytd',
+                   'matchup___is_same_conf',
+                   'matchup___is_same_division',
+                   'rankings___h__def_rank',
+                   'rankings___h__off_rank',
+                   'rankings___h__s_t_rank',
+                   'team_history___h_ovr_wr_ytd',
+                   'team_history___v_ovr_wr_ytd',
+                   'time_date___day_of_week',
+                   'travel___h_body_clock_from_last_wk',
+                   'travel___h_days_since_last_game',
+                   'travel___h_same_stadium_last_game',
+                   'travel___h_travel_from_last_game_decay',
+                   'travel___h_tz_change_last_game',
+                   'travel___v_body_clock_from_last_wk',
+                   'travel___v_days_since_last_game',
+                   'travel___v_same_stadium_last_game',
+                   'travel___v_travel_from_last_game_decay',
+                   'weather___humidity_pct',
+                   'weather___is_dome',
+                   'weather___temperature',
+                   'weather___wind_chill',
+                   'weather___wind_mph'],
+ 'features_tbl': 'features.combined_0601',
+ 'fold_seed': 99,
+ 'global_dataset_proportions': {'holdout': 0,
+                                'scoring_only': 0,
+                                'throw_away': 0,
+                                'training': 1.0},
+ 'index': ['game_id'],
+ 'kfolds': 5,
+ 'label_col': 'final_margin',
+ 'labels_tbl': 'labels.combined_0601',
+ 'model': 'xgboost.XGBRegressor',
+ 'model_cv_to_use': None,
+ 'model_id': '2019-08-30_regression',
+ 'model_params': {'booster': 'gbtree',
+                  'gamma': 0,
+                  'learning_rate': 0.1,
+                  'max_depth': 6,
+                  'max_features': 'auto',
+                  'n_estimators': 100,
+                  'n_jobs': 1,
+                  'nthread': None,
+                  'objective': 'reg:linear',
+                  'random_state': 9,
+                  'silent': True,
+                  'subsample': 0.5},
+ 'models_dir': 'models',
+ 'neg_labels': [-1],
+ 'pos_labels': [1],
+ 'save': {'cv_data': True,
+          'cv_scores': True,
+          'holdout_scores': False,
+          'serialized_models': False},
+ 'strata_cols': ['season', 'week_id']}
+``` 
+#### Evaluation JSON
+```json
+{'accuracy_at_topn': {'season': [1, 200, 2], 'week_id__season': [1, 16]},
+ 'bin_types': ['Bin', 'Percentile'],
+ 'label_map': {'0': 'Lost', '1': 'Won'},
+ 'model_id': '2019-08-30_regression',
+ 'models_dir': 'models',
+ 'plot_bins': [10, 100],
+ 'regression_evaluation': {'comparison': 0,
+                           'label': 'did_win',
+                           'round_score': False},
+ 'save': {'data': False, 'plots': False},
+ 'success_name': 'Win Rate',
+ 'threshold_metrics': ['Accuracy', 'F1'],
+ 'to_plot': {'accuracy_by_top_n': True,
+             'bins': True,
+             'feature_importance': True,
+             'regression__confusion_matrix': True,
+             'regression__distributions': True,
+             'regression__residuals_by_season_week': True,
+             'regression__scatter': True,
+             'ridge': True,
+             'roc': True,
+             'shap__dependence_plots': False,
+             'shap__feature_importance': True,
+             'thresholds': True}}
+```
+#### Ensemble Model JSON (new cross-validation data).
+```json
+{'aggregation_method': ['mean', 'median'],
+ 'ensemble_model_id': 'regression_ensemble_with_new_cv_data',
+ 'evaluation_config': 'model_configs/ensemble_submodel_evaluate__regression_example.json',
+ 'models_dir': 'models',
+ 'number_of_models': 5,
+ 'save': {'scores': True},
+ 'source': 'model_configs/ensemble_submodel_model__regression_example.json',
+ 'submodel_plots': True}
+```
+
+#### Ensemble Model JSON (existing cross-validation data) -- runs the same model but with modified hyper-parameters
+```json
+{'aggregation_method': ['mean', 'median'],
+ 'ensemble_model_id': 'regression_ensemble_load_cv',
+ 'evaluation_config': 'model_configs/ensemble_evaluate__regression_example.json',
+ 'input_changes_by_iteration': {'model_params': [{'booster': 'gbtree',
+                                                  'gamma': 0,
+                                                  'learning_rate': 0.1,
+                                                  'max_depth': 12,
+                                                  'max_features': 'auto',
+                                                  'n_estimators': 100,
+                                                  'n_jobs': 1,
+                                                  'nthread': None,
+                                                  'objective': 'reg:linear',
+                                                  'random_state': 9,
+                                                  'silent': True,
+                                                  'subsample': 0.5},
+                                                 {'booster': 'gbtree',
+                                                  'gamma': 0,
+                                                  'learning_rate': 0.1,
+                                                  'max_depth': 12,
+                                                  'max_features': 'auto',
+                                                  'n_estimators': 100,
+                                                  'n_jobs': 1,
+                                                  'nthread': None,
+                                                  'objective': 'reg:linear',
+                                                  'random_state': 9,
+                                                  'silent': True,
+                                                  'subsample': 0.5},
+                                                 {'booster': 'gbtree',
+                                                  'gamma': 0,
+                                                  'learning_rate': 0.1,
+                                                  'max_depth': 12,
+                                                  'max_features': 'auto',
+                                                  'n_estimators': 100,
+                                                  'n_jobs': 1,
+                                                  'nthread': None,
+                                                  'objective': 'reg:linear',
+                                                  'random_state': 9,
+                                                  'silent': True,
+                                                  'subsample': 0.5},
+                                                 {'booster': 'gbtree',
+                                                  'gamma': 0,
+                                                  'learning_rate': 0.1,
+                                                  'max_depth': 12,
+                                                  'max_features': 'auto',
+                                                  'n_estimators': 100,
+                                                  'n_jobs': 1,
+                                                  'nthread': None,
+                                                  'objective': 'reg:linear',
+                                                  'random_state': 9,
+                                                  'silent': True,
+                                                  'subsample': 0.5},
+                                                 {'booster': 'gbtree',
+                                                  'gamma': 0,
+                                                  'learning_rate': 0.1,
+                                                  'max_depth': 12,
+                                                  'max_features': 'auto',
+                                                  'n_estimators': 100,
+                                                  'n_jobs': 1,
+                                                  'nthread': None,
+                                                  'objective': 'reg:linear',
+                                                  'random_state': 9,
+                                                  'silent': True,
+                                                  'subsample': 0.5}]},
+ 'load_cv_data_from': 'regression_ensemble_with_new_cv_data',
+ 'models_dir': 'models',
+ 'number_of_models': 5,
+ 'save': {'scores': True},
+ 'submodel_plots': False}
+```
+
+### ER Diagram 
 * automated using __eralchemy__
-* code to do this is in the ER diagram notebook (misc/er_diagram.ipynb)
+* code to do this is in the ER diagram notebook (notebooks/misc/er_diagram.ipynb)
 
 ![E-R Diagram for Database][erd]
 
 [erd]: img/er_diagram.png
-
-### Data
-* don't have passing vs. running offense or defense stats
-* have injury data but have not incorporated. could be extremely useful.
-* plan is to eventually add advanced stats
-   * profootballfocus
-   * sports info solutions
-   * sharp football
-   * NFL nextgen
-   * historical prop bet lines?
-   * pregame.com
-   * would be nice to get schemes and dig into specific matchups, e.g. WR vs CB or O vs. D schemes
-* how to encode team changes in the off-season? e.g. FA acquisitions
-
-### Open Questions
-* for labels, each row is a game
-  * which team should the spread be based off of?
-  * it could be home team, favorite, random, or something else
-  * home team team adds bias. it might be better to encode Home/Visitor as a feature
-  * favorite adds bias but perhaps more tolerable
-* how to handle early in the season vs. later? maybe start out building model for weeks 8-17?
-* how to handle playoffs vs. regular season?
-* how to figure out how to incorporate injuries
-* playoff scenarios: sometimes one team is motivated while another is not (or is tanking)
-  * week 17 can be tricky 
