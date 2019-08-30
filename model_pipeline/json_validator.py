@@ -160,11 +160,12 @@ def validate_eval_json(model_dict, plots_dict):
                 'plots'}
     set([type(a) for a in model_dict['save'].values()]) == {bool}
 
-    assert set(plots_dict['regression_evaluation'].keys()) \
-            == {'comparison',
-                'label',
-                'round_score'}
-    assert type(plots_dict['regression_evaluation']['round_score']) is bool
+    if plots_dict['regression_evaluation']:
+        assert set(plots_dict['regression_evaluation'].keys()) \
+                == {'comparison',
+                    'label',
+                    'round_score'}
+        assert type(plots_dict['regression_evaluation']['round_score']) is bool
 
     for _, v in plots_dict['accuracy_at_topn'].items():
         assert type(v) is list
