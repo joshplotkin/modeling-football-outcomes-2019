@@ -1,0 +1,1 @@
+{"models_dir": "models", "ensemble_model_id": "classification_ensemble_with_new_cv_data", "number_of_models": 5, "aggregation_method": ["mean", "median"], "source": "model_configs/ensemble_submodel_model__classification_example.json", "save": {"scores": true}, "evaluation_config": "model_configs/ensemble_submodel_evaluate__classification_example.json", "submodel_plots": true}

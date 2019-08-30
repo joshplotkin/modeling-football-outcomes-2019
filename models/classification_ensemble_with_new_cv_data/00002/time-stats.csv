@@ -1,0 +1,6 @@
+elapsed,name,time
+0.0,start,37.710468773
+0.0022515709999950673,initialized and loaded JSON file(s),37.712720344
+0.15487037100000123,loaded and validated,37.867590715
+0.8137555170000041,generated or fetched CV sets,38.681346232
+7.982848821999994,trained and scored,46.664195054
