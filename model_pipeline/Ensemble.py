@@ -178,7 +178,6 @@ class Ensemble:
     def modify_parameters_for_iteration(self, model_dicts, model_nbr, seed):
         model_dict = model_dicts[model_nbr]
         model_dict = self.apply_seeds(model_dict, model_nbr, seed)
-        print(self.config)
         if 'input_changes_by_iteration' in self.config:
             return self.apply_parameters_for_iteration(model_dict, model_nbr)
         else:
