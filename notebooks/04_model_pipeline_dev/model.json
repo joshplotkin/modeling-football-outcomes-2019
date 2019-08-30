@@ -1,0 +1,133 @@
+{
+    "actions": {
+        "do_train_and_score_cv": true,
+        "do_score_holdout": true,
+        "do_evaluate": true
+    },
+    "model_id": "dev",
+    "features_tbl": "features.combined_0601",
+    "labels_tbl": "labels.combined_0601",
+    "index": [
+        "game_id"
+    ], 
+    "label_col": "final_margin",
+    "model_params": {
+        "n_jobs": 1,
+        "learning_rate": 0.1,
+        "n_estimators": 100, 
+        "max_features": "auto", 
+        "booster": "gbtree", 
+        "silent": true, 
+        "nthread": null, 
+        "subsample": 0.5, 
+        "random_state": 9, 
+        "objective": "reg:linear",
+        "max_depth": 6, 
+        "gamma": 0
+    },
+    "model_cv_to_use": null, 
+    "neg_labels": [
+        -1
+    ], 
+    "pos_labels": [
+        1
+    ], 
+    "features_list": [
+        "home_field___h_consecutive_home",
+        "home_field___h_home__ovr_wr_last_4_games",
+        "home_field___h_home__ovr_wr_last_8_games",
+        "home_field___h_home__ovr_wr_ytd",
+        "home_field___v_consecutive_visitor",
+        "home_field___v_visitor__ovr_wr_last_4_games",
+        "home_field___v_visitor__ovr_wr_last_8_games",
+        "home_field___v_visitor__ovr_wr_ytd",
+        "matchup___h_wr_past_3_seasons",
+        "matchup___is_same_division",
+        "rankings___h__dave_or_wtddvoa",
+        "rankings___h__defensedvoa",
+        "rankings___h__estim_winrate",
+        "rankings___h__offensedvoa",
+        "rankings___h__s_t_dvoa",
+        "rankings___v__dave_or_wtddvoa",
+        "rankings___v__defensedvoa",
+        "rankings___v__estim_winrate",
+        "rankings___v__offensedvoa",
+        "rankings___v__s_t_dvoa",
+        "team_history___h_ovr_wr_past_2_seasons",
+        "team_history___h_ovr_wr_past_3_seasons",
+        "team_history___h_ovr_wr_ytd",
+        "team_history___v_ovr_wr_past_2_seasons",
+        "team_history___v_ovr_wr_past_3_seasons",
+        "team_history___v_ovr_wr_ytd",
+        "time_date___game_time_eastern",
+        "time_date___is_sunday",
+        "time_date___week_id",
+        "travel___h_body_clock_from_last_wk",
+        "travel___h_days_since_last_game",
+        "travel___h_same_stadium_last_game",
+        "travel___h_travel_from_last_game_decay",
+        "travel___h_tz_change_last_10_days",
+        "travel___v_body_clock_from_last_wk",
+        "travel___v_days_since_last_game",
+        "travel___v_home_body_time",
+        "travel___v_same_stadium_last_game",
+        "travel___v_travel_from_last_game_decay",
+        "travel___v_tz_change_last_10_days",
+        "weather___humidity_pct",
+        "weather___temperature",
+        "weather___wind_chill",
+        "weather___wind_mph",
+        "line___h_ml",
+        "line___close_ou",
+        "line___h_close_line"
+    ],
+    "fold_seed": null,
+    "kfolds": 5, 
+    "global_dataset_proportions": {
+        "training": 1.0,
+        "holdout": 0,
+        "throw_away": 0,
+        "scoring_only": 0
+    }, 
+    "strata_cols": [
+        "week_id",
+        "season"
+    ], 
+    "dataset_seed": null,
+    "model": "xgboost.XGBRegressor",
+    "dimensional_dataset_proportions": {
+        "throw_away": [
+            {
+                "vals": [
+                    1, 
+                    2, 
+                    3, 
+                    4, 
+                    17, 
+                    18, 
+                    19, 
+                    20, 
+                    21, 
+                    22
+                ], 
+                "dim": "week_id", 
+                "prop_to_move": 1.0, 
+                "from_groups": [
+                    "training",
+                    "holdout", 
+                    "scoring_only"
+                ]
+            }
+        ],
+        "holdout": [{
+            "vals": [2016,2017],
+            "dim": "season",
+            "prop_to_move": 1.0,
+            "from_groups": ["training"]}]
+    },
+    "save_models": true,
+    "save_cv_data": true,
+    "save_holdout_scores": true,
+    "save_cv_scores": true,
+    "models_dir": "/Users/joshplotkin/Dropbox/data_science/modeling-football-outcomes/models"
+}

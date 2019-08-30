@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="652b5225-9157-43b7-900c-ed8560365be2" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/CVData.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CVDataSpark.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/EvaluateModel.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TrainAndScoreModel.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model.json" beforeDir="false" afterPath="$PROJECT_DIR$/model.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/refactor_0528.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../05_feature_engineering/combine_features.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/../05_feature_engineering/combine_features.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../model_pipeline/check_json_files.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../model_pipeline/train_score.py" beforeDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/evaluate.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="1" selection-start-column="1" selection-end-column="1" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/CleanseDataTODO.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="30">
+              <caret line="2" column="29" lean-forward="true" selection-start-line="2" selection-start-column="29" selection-end-line="2" selection-end-column="29" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>training_scoring_dict</find>
+      <find>mean_residuals.csv</find>
+      <find>create_model_object</find>
+      <find>json</find>
+      <find>dump</find>
+      <find>save_model</find>
+      <find>self.save</find>
+      <find>cv_train</find>
+      <find>scores_df</find>
+      <find>pre</find>
+      <find>mdl</find>
+      <find>importances.to_csv(f'{stats_dir</find>
+      <find>os.env</find>
+      <find>models_d</find>
+      <find>model_ob</find>
+      <find>write_data</find>
+      <find>get_csv_data</find>
+      <find>get_cv_data</find>
+      <find>get_and_store_variables</find>
+      <find>self.model</find>
+      <find>importance</find>
+      <find>save</find>
+      <find>shap</find>
+      <find>plot_feature_importances</find>
+      <find>plot_shap_force_plot</find>
+      <find>get_shap_vals</find>
+      <find>plot_shap_feature_importance</find>
+      <find>model</find>
+      <find>plot_shap_dependence</find>
+      <find>config.</find>
+    </findStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/CleanseDataTODO.py" />
+        <option value="$PROJECT_DIR$/PlotResults.py" />
+        <option value="$PROJECT_DIR$/plotting_routines.py" />
+        <option value="$PROJECT_DIR$/plots.json" />
+        <option value="$PROJECT_DIR$/CVDataSpark.py" />
+        <option value="$PROJECT_DIR$/model_json_validator.py" />
+        <option value="$PROJECT_DIR$/Timer.py" />
+        <option value="$PROJECT_DIR$/Stopwatch.py" />
+        <option value="$PROJECT_DIR$/evaluate.json" />
+        <option value="$PROJECT_DIR$/json_validator.py" />
+        <option value="$PROJECT_DIR$/TrainAndScoreModel.py" />
+        <option value="$PROJECT_DIR$/model.json" />
+        <option value="$PROJECT_DIR$/EvaluateModel.py" />
+        <option value="$PROJECT_DIR$/CVData.py" />
+        <option value="$PROJECT_DIR$/execute_pipeline.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectConfigurationFiles">
+    <option name="files">
+      <list>
+        <option value="$PROJECT_DIR$/.idea/04_model_pipeline_dev.iml" />
+        <option value="$PROJECT_DIR$/.idea/misc.xml" />
+        <option value="$PROJECT_DIR$/.idea/vcs.xml" />
+        <option value="$PROJECT_DIR$/.idea/modules.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" fullScreen="true">
+    <option name="width" value="792" />
+    <option name="height" value="1050" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="04_model_pipeline_dev" type="b2602c69:ProjectViewProjectNode" />
+              <item name="04_model_pipeline_dev" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="652b5225-9157-43b7-900c-ed8560365be2" name="Default Changelist" comment="" />
+      <created>1559095504000</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1559095504000</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="0" width="1168" height="1050" extended-state="0" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19529207" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.32959184" />
+      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
+      <window_info anchor="bottom" id="Python Console" order="10" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+    </layout>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/PlotResults.py" />
+    <entry file="file://$PROJECT_DIR$/plotting_routines.py" />
+    <entry file="file://$PROJECT_DIR$/plots.json" />
+    <entry file="file://$PROJECT_DIR$/CVDataSpark.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="736">
+          <caret line="121" column="31" selection-start-line="121" selection-start-column="31" selection-end-line="121" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/model_json_validator.py" />
+    <entry file="file://$PROJECT_DIR$/Timer.py" />
+    <entry file="file://$PROJECT_DIR$/Stopwatch.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="19" column="25" selection-start-line="19" selection-start-column="25" selection-end-line="19" selection-end-column="25" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/json_validator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="631">
+          <caret line="116" column="52" selection-start-line="116" selection-start-column="52" selection-end-line="116" selection-end-column="52" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#4721#4737#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrainAndScoreModel.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="533">
+          <caret line="116" column="26" selection-start-line="116" selection-start-column="13" selection-end-line="116" selection-end-column="26" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/model.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1905">
+          <caret line="127" column="15" selection-start-line="127" selection-start-column="5" selection-end-line="127" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/evaluate.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="1" selection-start-column="1" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CVData.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="495">
+          <caret line="33" column="41" lean-forward="true" selection-start-line="33" selection-start-column="41" selection-end-line="33" selection-end-column="41" />
+          <folding>
+            <element signature="e#0#35#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/EvaluateModel.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2799">
+          <caret line="1035" column="28" selection-start-line="1035" selection-start-column="8" selection-end-line="1035" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/execute_pipeline.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="480">
+          <caret line="32" column="35" lean-forward="true" selection-start-line="32" selection-start-column="35" selection-end-line="32" selection-end-column="35" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CleanseDataTODO.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="29" lean-forward="true" selection-start-line="2" selection-start-column="29" selection-end-line="2" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
