@@ -1,5 +1,5 @@
 {
-    "model_id": "2019-08-29",
+    "model_id": "2019-08-30_regression",
     "models_dir": "models",
     "label_map": {
         "1": "Won",
