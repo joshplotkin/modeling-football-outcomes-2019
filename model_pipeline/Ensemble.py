@@ -13,9 +13,9 @@ class Ensemble:
     def __init__(self, model_path, eval_path):
         model_dict, eval_dict = self.load_json_files(model_path, eval_path)
         eval_dict['model_id'] = model_dict['ensemble_model_id']
-        self.config=model_dict
+        self.config = model_dict
         self.evaluate_ensemble_dict = eval_dict
-        self.trial_path=self.get_trial_path()
+        self.trial_path = self.get_trial_path()
 
     def execute_ensemble(self):
         self.setup_trial_dir(self.get_trial_path())
