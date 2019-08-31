@@ -1,12 +1,12 @@
 ## What is this repo?
 * A friend asked me, "do you think you could make a model to predict NFL outcomes?" It sounded like a fun challenge, so I'm giving it a try in my limited free time.
-  * Scraped 12 years of NFL outcomes and stats from 10 sources (notebooks/00_source_data, however I scrubbed any URLs).
+  * Scraped 12 years of NFL outcomes and stats from 10 sources (notebooks/00_source_data, URLs scrubbed).
   * Combined all data sources into a unified schema, as visualized below (notebooks/01_create_hive_data_model).
   * EDA with pySpark and pandas (notebooks/{02_exploration, 03_labels}).
   * Engineered >100 features with a backlog for more in-depth features (notebooks/05_feature_engineering). 
 
 ## Model Pipeline Example Usage and Visualizations
-* I've gotten nerd sniped and it has also become a project to automate many of the modeling steps I take when developing a Machine Learning model:
+* I've gotten nerd sniped and it has also become a project to automate many of the modeling steps I take when tuning a Machine Learning model:
   * Driven from JSON files and executable with the push of a button.
   * Splits up data (holdout vs. cross-validation; k-fold), with configurable random seeds and customizable stratified sampling.
   * Model training and scoring, using XGBoost or sklearn (right now only supporting RF and GBT).
