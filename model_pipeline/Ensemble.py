@@ -7,8 +7,6 @@ import sys
 from ExecuteModelPipeline import ExecuteModelPipeline
 from EvaluateModel import EvaluateAndPlot
 
-# TODO: how to infer if it's classification?
-
 class Ensemble:
     def __init__(self, model_path, eval_path):
         model_dict, eval_dict = self.load_json_files(model_path, eval_path)
