@@ -22,7 +22,7 @@
 #### These notebooks demonstrate executing the pipeline using the JSON files generated in the notebook
 * [Regression](https://nbviewer.jupyter.org/github/joshplotkin/modeling-football-outcomes-2019/blob/master/notebooks/model_execution/run_model_ensemble_from_preexisting_json_regression.ipynb)
 * [Classification](https://nbviewer.jupyter.org/github/joshplotkin/modeling-football-outcomes-2019/blob/master/notebooks/model_execution/run_model_ensemble_from_preexisting_json_classification.ipynb)
-w* TODO: link to nbviewer
+
 #### Sample Execution (single model)
 ```python
 from ExecuteModelPipeline import ExecuteModelPipeline
