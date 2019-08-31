@@ -4,16 +4,18 @@
   * Combined all data sources into a unified schema, as visualized below (notebooks/01_create_hive_data_model).
   * EDA with pySpark and pandas (notebooks/{02_exploration, 03_labels}).
   * Engineered >100 features with a backlog for more in-depth features (notebooks/05_feature_engineering). 
+
+## Model Pipeline Example Usage and Visualizations
 * I've gotten nerd sniped and it has also become a project to automate many of the modeling steps I take when developing a Machine Learning model:
-  * All driven from JSON files and executable with the push of a button.
-  * Splitting up the data (cross-validation set vs. holdout set, and dividing cross-validation set into folds). Repeatable via seeds in the JSON config files, with optional stratified sampling.
+  * Driven from JSON files and executable with the push of a button.
+  * Splits up data (holdout vs. cross-validation; k-fold), with configurable random seeds and customizable stratified sampling.
   * Model training and scoring, using XGBoost or sklearn (right now only supporting RF and GBT).
-  * Evaluation providing insightful visualizations and metrics for model performance and model explainability (using SHAP).
-  * Ensembling, to reduce variance when model selection. Option to create new cross-validation data based on a model JSON, or to copy data from an existing ensemble (useful for hyper-parameter optimization and feature selection). 
+  * Evaluation providing insightful visualizations and metrics for model performance and model interpretability.
+  * Ensembling, to reduce variance when model selection. Two options 
+    * New cross-validation data based on a model JSON
+    * Copy data from an existing ensemble (useful for hyper-parameter optimization and feature selection). 
   * Hyperparameter optimization using the scikit-optimize package (WIP).
   * _Shoutout to Tim Kopp, whom I worked with closely at Pivotal and devised several methods I use here._
-
-## Example Usage
 
 ### Model Pipeline Execution
 #### These notebooks walk through creating a JSON
