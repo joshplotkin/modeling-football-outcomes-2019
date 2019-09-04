@@ -17,7 +17,7 @@
   * Hyperparameter optimization using the scikit-optimize package (WIP).
   * _Shoutout to Tim Kopp, whom I worked with closely at Pivotal and devised several methods I use here._
 
-### Model Pipeline Execution
+## Model Pipeline Execution
 #### These notebooks walk through creating a JSON
 * [Regression (e.g. labels are margins of victory)](https://nbviewer.jupyter.org/github/joshplotkin/modeling-football-outcomes-2019/blob/master/notebooks/model_execution/generate_config_for_model_and_ensemble_regression.ipynb)
 * [Classification (e.g. labels are game winners)](https://nbviewer.jupyter.org/github/joshplotkin/modeling-football-outcomes-2019/blob/master/notebooks/model_execution/generate_config_for_model_and_ensemble_classification.ipynb)
