@@ -11,7 +11,7 @@
   * Splits up data (holdout vs. cross-validation; k-fold), with configurable random seeds and customizable stratified sampling.
   * Model training and scoring, using XGBoost or sklearn (right now only supporting RF and GBT).
   * Evaluation providing insightful visualizations and metrics for model performance and model interpretability.
-  * Ensembling, to reduce variance when model selection. Two options 
+  * Ensembling, to reduce variance when performing model selection. Two options: 
     * New cross-validation data based on a model JSON
     * Copy data from an existing ensemble (useful for hyper-parameter optimization and feature selection). 
   * Hyperparameter optimization using the scikit-optimize package (WIP).
